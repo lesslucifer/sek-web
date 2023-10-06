@@ -1,0 +1,34 @@
+#gameLogsContainer {
+    height: 400px;
+    overflow: auto;
+    padding: 0 16px;
+    border: 1px solid rgba(140, 140, 140, 0.35);
+}
+
+.logsContainer.land .ant-list-item-meta-description {
+    font-size: 10px !important;
+}
+
+.logsContainer.port .ant-list-item-meta-description {
+    font-size: 8px !important;
+}
+
+.logsContainer.port .ant-list-item {
+    padding: 0;
+}
+
+.logsContainer.port .ant-modal-content {
+    padding: 0;
+}
+
+.gameLogContent {
+    width: 60%;
+}
+
+.land .gameLogContent {
+    font-size: 12;
+}
+
+.port .gameLogContent {
+    font-size: 10;
+}

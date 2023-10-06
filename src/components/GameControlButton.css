@@ -1,0 +1,117 @@
+.gameControlButton {
+    display: block;
+    position: relative;
+
+    max-height: 4.5rem;
+    height: 100%;
+    padding: 0 1rem;
+
+    font-family: Mulish, sans-serif;
+    font-weight: 700;
+
+    color: white;
+    border-color: white;
+    border-style: solid;
+    border-radius: 10px;
+
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    cursor: pointer;
+}
+
+.land .gameControlButton {
+    width: 7rem;
+    font-size: 1rem;
+}
+
+.port .gameControlButton {
+    font-size: 1rem;
+}
+
+.gameControlButton:active {
+    transform: translateY(2px); 
+}
+
+.gameControlButton.green {
+    color: #53d78b;
+    border-color: #53d78b;
+}
+
+.gameControlButton.green.selected {
+    color: white;
+    background-color: #53d78b;
+}
+
+.gameControlButton.green.disabled {
+    color: #6bbb8c;
+    border-color: #6bbb8c;
+    cursor: default;
+}
+
+.gameControlButton.gray {
+    color: gray;
+    border-color: gray;
+}
+
+.gameControlButton.gray.selected {
+    color: white;
+    background-color: gray;
+}
+
+.gameControlButton.gray.disabled {
+    color: rgb(108, 108, 108);
+    border-color: rgb(108, 108, 108);
+    cursor: default;
+}
+
+.gameControlButton.red {
+    color: #fc4117;
+    border-color: #fc4117;
+}
+
+.gameControlButton.red.selected {
+    color: white;
+    background-color: #fc4117;
+}
+
+.gameControlButton.red.disabled {
+    color: #90260f;
+    border-color: #90260f;
+    cursor: default;
+}
+
+.gameControlButton.white {
+    color: white;
+    border-color: white;
+}
+
+.gameControlButton.white.selected {
+    color: black;
+    background-color: white;
+}
+
+.gameControlButton.white.disabled {
+    color: rgb(137, 137, 137);
+    border-color: rgb(137, 137, 137);
+    cursor: default;
+}
+
+.gameControlButton .bindKey {
+    position: absolute;
+    top: 10%;
+    right: 5%;
+
+    font-size: 0.7rem;
+}
+
+.land .gameControlButton .bindKey {
+    font-size: 0.7rem;
+}
+
+.port .gameControlButton .bindKey {
+    font-size: 0.3rem;
+}

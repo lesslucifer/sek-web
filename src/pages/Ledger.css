@@ -1,0 +1,21 @@
+.ledgerContainer.port {
+    display: flex;
+}
+
+.ledgerResultPos {
+    font-weight: bold;
+    color: green;
+}
+
+.ledgerResultPos::before {
+    content: '+';
+}
+
+.ledgerResultNeg {
+    font-weight: bold;
+    color: #e10707;
+}
+
+.ledgerContainer.port .playerInfo {
+    font-size: 10px;
+}

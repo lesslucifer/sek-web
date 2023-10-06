@@ -1,0 +1,232 @@
+#main-container {
+    display: flex;
+    background-color: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    height: 100%;
+}
+
+#canvas {
+    display: block;
+    position: relative;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.65);
+    box-shadow: rgb(0 0 0 / 34%) 0px 0px 2rem;
+}
+
+#table {
+    display: block;
+    /* background-image: url('https://cdn.pokernow.club/table-red-638e9b932eca6fbc3d78.png'); */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    height: 80%;
+    width: 100%;
+}
+
+.land #table {
+    background-image: url('../assets/table-land.png');
+}
+
+.port #table {
+    margin-top: 8%;
+    background-image: url('../assets/table-port.png');
+}
+
+.seat {
+    width: 220px;
+    height: 80px;
+    position: absolute;
+}
+
+.land .seat#seat0 {
+    right: 30%;
+    bottom: 2%;
+    transform-origin: bottom right;
+}
+
+.land .seat#seat1 {
+    left: 30%;
+    bottom: 2%;
+    transform-origin: bottom left;
+}
+
+.land .seat#seat2 {
+    left: 11%;
+    bottom: 22%;
+    transform-origin: bottom left;
+}
+
+.land .seat#seat9 {
+    right: 11%;
+    bottom: 22%;
+    transform-origin: bottom right;
+}
+
+.land .seat#seat3 {
+    left: 3%;
+    bottom: 42%;
+    transform-origin: bottom left;
+}
+
+.land .seat#seat8 {
+    right: 3%;
+    bottom: 42%;
+    transform-origin: bottom right;
+}
+
+.land .seat#seat4 {
+    left: 11%;
+    bottom: 62%;
+    transform-origin: bottom left;
+}
+
+.land .seat#seat7 {
+    right: 11%;
+    bottom: 62%;
+    transform-origin: bottom right;
+}
+
+.land .seat#seat5 {
+    left: 26%;
+    bottom: 82%;
+    transform-origin: bottom left;
+}
+
+.land .seat#seat5 {
+    left: 26%;
+    bottom: 82%;
+    transform-origin: bottom left;
+}
+
+.land .seat#seat6 {
+    right: 26%;
+    bottom: 82%;
+    transform-origin: bottom right;
+}
+
+.seat#seat6 {
+    right: 26%;
+    bottom: 82%;
+    transform-origin: bottom right;
+}
+
+/* Seat portrait */
+
+.port .seat#seat0 {
+    right: 29%;
+    bottom: 0%;
+    transform-origin: bottom right;
+}
+
+.port .seat#seat1 {
+    left: 2%;
+    bottom: 16%;
+    transform-origin: bottom left;
+}
+
+.port .seat#seat2 {
+    left: 2%;
+    bottom: 28%;
+    transform-origin: bottom left;
+}
+
+.port .seat#seat3 {
+    left: 2%;
+    bottom: 63%;
+    transform-origin: bottom left;
+}
+
+.port .seat#seat4 {
+    left: 2%;
+    bottom: 75%;
+    transform-origin: bottom left;
+}
+
+.port .seat#seat5 {
+    left: 29%;
+    bottom: 90.5%;
+    transform-origin: bottom left;
+}
+
+.port .seat#seat6 {
+    right: 2%;
+    bottom: 75%;
+    transform-origin: bottom right;
+}
+
+.port .seat#seat7 {
+    right: 2%;
+    bottom: 63%;
+    transform-origin: bottom right;
+}
+
+.port .seat#seat8 {
+    right: 2%;
+    bottom: 28%;
+    transform-origin: bottom right;
+}
+
+.port .seat#seat9 {
+    right: 2%;
+    bottom: 16%;
+    transform-origin: bottom right;
+}
+
+.potContainer {
+    position: absolute;
+
+    display: block;
+    width: 13%;
+    height: 5.5%;
+}
+
+.land .potContainer {
+    top: 24%;
+    left: 43.4%;
+}
+
+.port .potContainer {
+    top: 37%;
+    left: 43.4%;
+}
+
+.mainPot {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    line-height: 2rem;
+    margin: 0 auto;
+    color: #fff;
+    font-family: Mulish,sans-serif;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.mainGameCommunityCards {
+    width: 60%;
+    position: absolute;
+}
+
+.land .mainGameCommunityCards {
+    top: 39%;
+    left: 28%;
+}
+
+.port .mainGameCommunityCards {
+    top: 47%;
+    left: 6.5%;
+}
+
+.dealerButton {
+    width: 2.9rem;
+    height: 2.25rem;
+    background-image: url('../assets/dealer.png');
+    background-size: cover;
+}

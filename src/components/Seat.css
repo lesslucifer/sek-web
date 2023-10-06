@@ -1,0 +1,384 @@
+.seatContainer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    position: relative;
+    color: gray;
+    box-shadow: rgb(0 0 0 / 88%) 0px 0px 0.2rem;
+    border-radius: 5px;
+    font-family: Mulish,sans-serif;
+}
+
+.seatContainer.empty {
+    border-style: dashed;
+    border-width: 1px;
+    border-color: darkgray;
+    box-shadow: none;
+}
+
+.seatContainer.waiting {
+    background-color: #353535;
+    color: whitesmoke;
+}
+
+.seatContainer.playing {
+    background-color: white;
+    color: #2a2a2a;
+    box-shadow: rgb(255 255 255 / 68%) 0px 0px 1rem;
+}
+
+.seatContainer.winner {
+    background-color: white;
+    color: #2a2a2a;
+    box-shadow: #ffffffaa 0 0 2rem, 0 0rem 2.6em 0 rgb(223 245 43 / 48%) inset;
+}
+
+.seatContainer.winner::before {
+    background-color: white;
+    color: #2a2a2a;
+    box-shadow: rgb(223 245 43 / 48%) 0 0 1rem;
+}
+
+.seatNum {
+    position: absolute;
+    left: 5px;
+    bottom: 5px;
+    font-size: 1.3rem;
+}
+
+.seatText {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: larger;
+    font-weight: bolder;
+    color: rgb(98, 98, 98);
+}
+
+.seatContainer:hover .seatHighlight {
+    color: aliceblue;
+}
+
+.playerStatusContainer {
+    position: absolute;
+    height: 80%;
+    width: 40%;
+    top: 10%;
+    left: 10%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.playerStatusText {
+    font-size: small;
+    font-weight: bold;
+    text-align: center;
+}
+
+.playerStackContainer {
+    position: absolute;
+    width: 45%;
+    height: 80%;
+    left: 51%;
+    top: 10%;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: left;
+}
+
+.playerName {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.playerStack {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.playerCard {
+    display: block;
+    transform: translate(-2rem, -1.2rem);
+}
+
+.playerCard1 {
+    position: absolute;
+    left: 0;
+    transform: scale(0.7) rotate(-8deg);
+}
+
+.playerCard2 {
+    position: absolute;
+    left: 3.4rem;
+    transform: scale(0.7) rotate(8deg);
+}
+
+.cardStatus {
+    background-color: #fc6262;
+
+    color: #ededed;
+    font-size: 0.8rem;
+    font-weight: bold;
+    border-radius: 1vh;
+    padding: 0.5vh 0.8vh;
+    text-align: center;
+
+    position: absolute;
+    left: 75px;
+    top: 105px;
+    transform: translate(-50%, -50%);
+
+    z-index: 100;
+}
+
+.playerWinAmount {
+    margin: 0 0.2rem;
+    padding: 0 0.3rem;
+    
+    background-color: #00000055;
+    border-radius: 0.4rem;
+
+    font-size: 0.9rem;
+    color: #ededed;
+}
+
+.bettingAmount {
+    font-size: 1rem;
+    background-color: hsl(66, 90%, 68%);
+    border-radius: 5vh;
+    margin: 0;
+    color: #000;
+    display: block;
+    padding: 4% 7%;
+    font-family: Mulish,sans-serif;
+    font-weight: bold;
+
+    position: absolute;
+}
+
+.land .bettingAmount.seat0 {
+    bottom: 115%;
+    left: 7%;
+}
+
+.land .bettingAmount.seat1 {
+    bottom: 115%;
+    right: 7%;
+}
+
+.land .bettingAmount.seat2 {
+    top: 25%;
+    left: 104%;
+}
+
+.land .bettingAmount.seat3 {
+    top: 25%;
+    left: 104%;
+}
+
+.land .bettingAmount.seat4 {
+    top: 25%;
+    left: 104%;
+}
+
+.land .bettingAmount.seat5 {
+    top: 112%;
+    right: 0%;
+}
+
+.land .bettingAmount.seat6 {
+    top: 112%;
+    left: 0%;
+}
+
+.land .bettingAmount.seat7 {
+    top: 25%;
+    right: 112%;
+}
+
+.land .bettingAmount.seat8 {
+    top: 25%;
+    right: 112%;
+}
+
+.land .bettingAmount.seat9 {
+    top: 25%;
+    right: 112%;
+}
+
+.dealer {
+    display: block;
+    position: absolute;
+}
+
+.land .dealer.seat0 {
+    bottom: 115%;
+    left: -15%;
+}
+
+.land .dealer.seat1 {
+    bottom: 115%;
+    right: 45%;
+}
+
+.land .dealer.seat2 {
+    top: -22%;
+    left: 104%;
+}
+
+.land .dealer.seat3 {
+    top: 80%;
+    left: 104%;
+}
+
+.land .dealer.seat4 {
+    top: 80%;
+    left: 104%;
+}
+
+.land .dealer.seat5 {
+    top: 112%;
+    right: 40%;
+}
+
+.land .dealer.seat6 {
+    top: 112%;
+    left: 40%;
+}
+
+.land .dealer.seat7 {
+    top: 80%;
+    right: 112%;
+}
+
+.land .dealer.seat8 {
+    top: 80%;
+    right: 112%;
+}
+
+.land .dealer.seat9 {
+    top: -22%;
+    right: 112%;
+}
+
+.seatTimeBar {
+    width: 60%;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 0;
+}
+
+/* Portrait */
+
+.port .bettingAmount.seat0 {
+    bottom: 110%;
+    left: 25%;
+}
+
+.port .bettingAmount.seat1 {
+    bottom: -2%;
+    left: 104%;
+}
+
+.port .bettingAmount.seat2 {
+    bottom: -2%;
+    left: 104%;
+}
+
+.port .bettingAmount.seat3 {
+    bottom: 0%;
+    left: 104%;
+}
+
+.port .bettingAmount.seat4 {
+    bottom: 0%;
+    left: 104%;
+}
+
+.port .bettingAmount.seat5 {
+    top: 112%;
+    left: 45%;
+}
+
+.port .bettingAmount.seat6 {
+    top: 5%;
+    right: 112%;
+}
+
+.port .bettingAmount.seat7 {
+    top: 5%;
+    right: 112%;
+}
+
+.port .bettingAmount.seat8 {
+    top: 5%;
+    right: 112%;
+}
+
+.port .bettingAmount.seat9 {
+    top: 5%;
+    right: 112%;
+}
+
+.port .dealer.seat0 {
+    bottom: 20%;
+    right: 115%;
+}
+
+.port .dealer.seat1 {
+    top: -6%;
+    left: 102%;
+}
+
+.port .dealer.seat2 {
+    top: -6%;
+    left: 102%;
+}
+
+.port .dealer.seat3 {
+    top: -2%;
+    left: 104%;
+}
+
+.port .dealer.seat4 {
+    top: -2%;
+    left: 104%;
+}
+
+.port .dealer.seat5 {
+    top: 35%;
+    left: 105%;
+}
+
+.port .dealer.seat6 {
+    bottom: -6%;
+    right: 110%;
+}
+
+.port .dealer.seat7 {
+    bottom: -6%;
+    right: 110%;
+}
+
+.port .dealer.seat8 {
+    bottom: -6%;
+    right: 107%;
+}
+
+.port .dealer.seat9 {
+    bottom: -6%;
+    right: 107%;
+}

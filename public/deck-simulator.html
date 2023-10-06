@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="https://pokeraa.xyz/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta property="og:title" content="PokerAA - Poker for funs">
+    <meta property="og:image" content="https://pokeraa.xyz/favicon.png">
+    <meta name="description" content="PokerAA deck shuffling simulator" />
+    <title>PokerAA Deck Simulator</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/random-js@2.1.0/dist/random-js.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
+        integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+
+<body>
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Mulish:wght@200;300;400;700&display=swap"
+        rel="stylesheet">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+</body>
+
+</html>
+
+<script type="text/babel">
+    (() => {
+        const domContainer = document.querySelector('#root');
+        const root = ReactDOM.createRoot(domContainer);
+        root.render(React.createElement(Deck));
+    })()
+
+    const { useState, useEffect } = React
+
+    function Card(props) {
+        const { card } = props
+
+        const { rank, suit } = card || {}
+
+        if (rank <= 1) return (<div className={`card cardBack`} />)
+
+        const getRank = () => {
+            if (rank <= 10) return rank
+            if (rank === 11) return 'J'
+            if (rank === 12) return 'Q'
+            if (rank === 13) return 'K'
+            if (rank === 14) return 'A'
+            return 'Ø'
+        }
+
+        const getSuit = () => {
+            if (suit === 'H') return "♥"
+            if (suit === 'D') return "♦"
+            if (suit === 'C') return "♣"
+            if (suit === 'S') return "♠"
+            return 'Ø'
+        }
+
+        const getColor = () => {
+            if (suit === 'H' || suit === 'D') return '#db3131'
+            return '#2c2c2c'
+        }
+
+        const scale = 0.6
+        const width = 100 * scale
+        const height = 120 * scale;
+        const borderRadius = 10 * scale;
+
+        const rankFontSize = 2.5 * scale
+        const suitFontSize = 3 * scale
+
+        if (!card) return null
+
+        return (<div className={`card`} style={{ color: getColor(), width: `${width}px`, height: `${height}px`, borderRadius: `${borderRadius}px` }}>
+            <div className='cardContent' style={{ width: `${width}px`, height: `${height}px` }}>
+                <span className="cardRank" style={{ fontSize: `${rankFontSize}rem` }}>{getRank()}</span>
+                <span className="cardSuit" style={{ fontSize: `${suitFontSize}rem` }}>{getSuit()}</span>
+            </div>
+        </div>)
+    }
+
+    const CardSuit = ['H', 'D', 'C', 'S']
+    const BASE_CARDS = _.chain(_.range(2, 15)).flatMap(r => _.values(CardSuit).map(s => ({ rank: r, suit: s }))).value()
+
+    function Deck() {
+        const [seed, setSeed] = useState('')
+        const [handId, setHandId] = useState('')
+        const [previousPot, setPreviousPot] = useState('')
+        const [hash, setHash] = useState()
+        const [cards, setCards] = useState([...BASE_CARDS])
+
+        useEffect(() => {
+            const nonce = [seed, handId, previousPot].join('')
+            setHash(CryptoJS.SHA256(nonce))
+        }, [seed, handId, previousPot])
+
+        useEffect(() => {
+            if (!hash) {
+                setCards([])
+                return
+            }
+
+            const randomizer = Random.MersenneTwister19937.seedWithArray(hash.words)
+            setCards(Random.shuffle(randomizer, [...BASE_CARDS]))
+        }, [hash])
+
+        return (
+            <div className="deckContainer">
+                <a href='https://gist.github.com/lesslucifer/980de74be894aec0d5e67e4f7a915c75'>How PokerAA Shuffle Decks</a>
+                <div className='seedContainer'>
+                    <input type="text" placeholder="Seed" className='seedInput' value={seed} onChange={(value) => setSeed(value.target.value)} />
+                    <input type="number" placeholder="Hand Id" className='seedInput' value={handId} onChange={(value) => setHandId(value.target.value)} />
+                    <input type="number" placeholder="Previous Pot" className='seedInput' value={previousPot} onChange={(value) => setPreviousPot(value.target.value)} />
+                </div>
+                <div className='seedContainer'>
+                    <input type="text" className='seedInput' style={{ width: '80vw' }} value={hash ? hash.toString() : ''} addonBefore='Hash' />
+                </div>
+                <div className={`cardsContainer`}>
+                    {cards.map((c, i) => <Card key={i} card={c} />)}
+                </div>
+            </div>
+        )
+    }
+</script>
+
+<style>
+    .card {
+        display: block;
+        width: 100px;
+        height: 120px;
+        background-color: whitesmoke;
+        border-radius: 10px;
+        border-color: darkgray;
+        border-width: 1px;
+        box-shadow: rgb(0 0 0 / 68%) 0px 0px 0.2rem;
+        transform-origin: center center;
+        margin: 10px 5px;
+    }
+
+    .cardContent {
+        position: absolute;
+        width: 100px;
+        height: 120px;
+    }
+
+    .cardBack {
+        background-image: none;
+        background-size: contain;
+    }
+
+    .cardRank {
+        position: absolute;
+        font-family: "Abril Fatface", cursive;
+    }
+
+    .cardRank {
+        top: 7%;
+        left: 18%;
+        height: 21%;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .cardSuit {
+        position: absolute;
+        top: 48%;
+        left: 38%;
+    }
+
+    .deckContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        height: 100vh;
+        width: 100vw;
+    }
+
+    .seedContainer {
+        margin: 8px;
+        background-color: white;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    .seedInput {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    .cardsContainer {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+        width: 80%;
+    }
+</style>

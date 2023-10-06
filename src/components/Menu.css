@@ -1,0 +1,15 @@
+.menuContainer {
+    display: flex;
+    
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.land .menuContainer {
+    flex-direction: column;
+}
+
+.port .menuContainer {
+    flex-direction: row;
+}

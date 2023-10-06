@@ -1,0 +1,12 @@
+.timeBarContainer {
+    display: flex;
+
+    height: 0.4rem;
+    background-color: gray;
+    border-radius: 0.2rem;
+}
+
+#timeBarValue {
+    background-color: #c4ff77;
+    border-radius: 0.2rem;
+}

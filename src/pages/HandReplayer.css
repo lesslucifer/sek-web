@@ -1,0 +1,33 @@
+.paginationContainer {
+    margin-top: 1rem;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.paginationContainer .ant-pagination-item-active {
+    background-color: inherit;
+    border: none;
+}
+
+.paginationContainer .ant-pagination-item-active > button {
+    color: rgb(44, 128, 242);
+    border-color:rgb(44, 128, 242);
+}
+
+.ant-pagination-prev > button > span {
+    color: white;
+}
+
+.ant-pagination-next > button > span {
+    color: white;
+}
+.ant-pagination-prev > button:hover > span {
+    color: rgb(44, 128, 242);
+}
+
+.ant-pagination-next > button:hover > span {
+    color: rgb(44, 128, 242);
+}

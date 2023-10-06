@@ -1,0 +1,32 @@
+.deckContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 10px;
+    height: 100vh;
+    width: 100vw;
+}
+
+.seedContainer {
+    margin: 8px;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.seedInput {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.cardsContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    width: 80%;
+}

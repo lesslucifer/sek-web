@@ -1,0 +1,76 @@
+.card {
+    display: block;
+    width: 100px;
+    height: 120px;
+    background-color: whitesmoke;
+    border-radius: 10px;
+    border-color: darkgray;
+    border-width: 1px;
+    box-shadow: rgb(0 0 0 / 68%) 0px 0px 0.2rem;
+    transform-origin: center center;
+}
+
+.cardContent {
+    position: absolute;
+    width: 100px;
+    height: 120px;
+}
+
+.cardBack {
+    background-image: url('../assets/card-back.png');
+    background-size: contain;
+}
+
+.cardBack.offline {
+    background-color: white;
+    background-blend-mode: luminosity;
+}
+
+.cardRank {
+    position: absolute;
+    font-family: "Abril Fatface", cursive;
+}
+
+.land .cardRank {
+    top: 7%;
+    left: 18%;
+    height: 21%;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.port .cardRank {
+    top: 7%;
+    left: 18%;
+    height: 21%;
+    font-size: 2.2rem;
+    font-weight: 900;
+}
+
+.cardSuit {    
+    position: absolute;
+    top: 48%;
+    left: 38%;
+    font-size: 2.7rem;
+    font-family: "Suits";
+}
+
+/* .card.highlight {
+    background-color: #f1f1f1;
+    border-color: #404040;
+    border-width: 2px;
+    box-shadow: #c4c4c4 0px 0px 2rem;
+    transform: translate(0, -1rem);
+}
+
+.card.down {
+    background-color: #b8b8b8;
+    border-color: #6d6d6d;
+    box-shadow: rgb(0 0 0 / 98%) 0px 0px 0.2rem;
+} */
+
+.card.offline {
+    background-color: #b1b1b1;
+    border-color: #6d6d6d;
+    box-shadow: rgb(0 0 0 / 98%) 0px 0px 0.2rem;
+}

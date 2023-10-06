@@ -1,0 +1,168 @@
+.gameControlContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    
+    position: absolute;
+
+    width: 900px;
+}
+
+.land .gameControlContainer {
+    height: 100px;
+    right: 2%;
+    bottom: 2%;
+}
+
+.port .gameControlContainer {
+    height: 80px;
+    right: 2%;
+    bottom: 5%;
+}
+
+.land .gameControlContainer > div {
+    margin: 0.25rem;
+}
+
+.port .gameControlContainer > div {
+    margin: 0.15rem;
+}
+
+.startGameContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+}
+
+.raiseControlContainer {
+    height: 100%;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.land .raiseControlContainer {
+    width: 60%;
+}
+
+.port .raiseControlContainer {
+    width: 45%;
+}
+
+.raiseButton {
+    min-width: 0;
+    width: 18% !important;
+    margin: 0 1%;
+}
+
+.land .raiseButton {
+    font-size: 12px;
+}
+
+.port .raiseButton {
+    font-size: 9px;
+}
+
+.yourBetContainer {
+    width: 30%;
+    height: 100%;
+
+    background-color: rgb(53, 53, 53);
+
+    border-color: transparent;
+    border-style: solid;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    text-transform: uppercase;
+    color: lightgray;
+}
+
+.land .yourBetContainer {
+    font-size: 1.2rem;
+}
+
+.port .yourBetContainer {
+    font-size: 0.6rem;
+}
+
+.yourBetInput {
+    height: 50%;
+    
+    background-color: transparent;
+    border-color: lightgray;
+    border-style: solid;
+    border-radius: 0.6rem;
+    margin: 0.2rem;
+
+    color: white;
+    text-align: center;
+    font-family: Mulish, sans-serif;
+    font-weight: 700;
+}
+
+.land .yourBetInput {
+    font-size: 1.8em;
+    width: 100px;
+}
+
+.port .yourBetInput {
+    font-size: 1.2rem;
+    width: 80%;
+}
+
+.yourBetInput:focus {
+    outline: none;
+    outline-color: transparent;
+    outline-width: 0;
+}
+
+.quickBetContainer {
+    width: 100%;
+    height: 100%;
+
+    margin-left: 10px;
+    margin-right: 5px;
+    padding: 0 10px;
+
+    background-color: rgb(53, 53, 53);
+
+    border-color: transparent;
+    border-style: solid;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+
+    text-transform: uppercase;
+    color: lightgray;
+}
+
+.quickBetRowContainer {
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}

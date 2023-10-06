@@ -1,0 +1,15 @@
+.adminController {
+    display: flex;
+    
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.land .adminController {
+    flex-direction: column;
+}
+
+.port .adminController {
+    flex-direction: row;
+}

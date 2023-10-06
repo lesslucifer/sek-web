@@ -1,0 +1,33 @@
+.playerManagerContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.hideEmptyPlayersContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.playerManagerActionContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.playerManagerActionContainer > button {
+    margin: 0 0.2rem;
+}
+
+.updateStackContainer {
+    display: flex;
+    align-items: center;
+}
+
+.updateStackContainer > button {
+    margin-left: 0.4rem;
+}
+
+.playerManagerContainer.port .playerInfo {
+    font-size: 10px;
+}
