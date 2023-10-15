@@ -10,7 +10,7 @@ function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route exact path="/" element={<HomePage />}/>
-        <Route exact path="/game/:gameid" element={<Game />}/>
+        <Route exact path="/room/:gameid" element={<Game />}/>
         <Route exact path="/hand/:gameId/:handId" element={<HandReplayer />}/>
         <Route exact path="/deck" element={<Deck />}/>
         <Route path="*" element={<NotFound />}/>

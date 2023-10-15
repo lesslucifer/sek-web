@@ -87,7 +87,7 @@ function HandsLog(props) {
 
         try {
             setIsLoading(true)
-            const url = `/game/hands?page=${page.current - 1}&pageSize=${pageSize}`
+            const url = `/room/hands?page=${page.current - 1}&pageSize=${pageSize}`
             const resp = await http.get(url)
 
             const hands = resp.data?.data?.data ?? []
@@ -106,7 +106,7 @@ function HandsLog(props) {
 
         try {
             setIsLoading(true)
-            const url = `/game/hands/${handId}`
+            const url = `/room/hands/${handId}`
             const resp = await http.get(url)
             const hand = resp.data?.data
             const steps = hand?.logs

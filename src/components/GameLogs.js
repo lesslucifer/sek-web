@@ -23,7 +23,7 @@ function GameLogs(props) {
 
         try {
             isLoadingRef.current = true
-            const url = lastIdRef.current ? `/game/logs?from=${lastIdRef.current}` : '/game/logs'
+            const url = lastIdRef.current ? `/room/logs?from=${lastIdRef.current}` : '/room/logs'
             const resp = await http.get(url)
             if (resp.data?.data?.logs?.length > 0) {
                 setLogs(logs => [...logs, ...resp.data.data.logs])
@@ -60,7 +60,7 @@ function GameLogs(props) {
 
         try {
             isLoadingRef.current = true
-            const url = `/game/hands/${handId}`
+            const url = `/room/hands/${handId}`
             const resp = await http.get(url)
             const hand = resp.data?.data
             const steps = hand?.logs

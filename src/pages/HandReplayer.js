@@ -39,7 +39,7 @@ function HandReplayer() {
   })), [uid])
 
   const loadHand = async () => {
-    const resp = await http.get(`/game/hands/${handId}`)
+    const resp = await http.get(`/room/hands/${handId}`)
     const hand = resp.data?.data
     if (!hand) throw new Error(`Cannot load hand`)
     console.log('loadHand', hand)

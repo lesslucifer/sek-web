@@ -6,8 +6,8 @@ import _ from "lodash";
 
 const connCache = new Map()
 
-function makeHTTP(gameId) {
-  if (connCache.has(gameId)) return connCache.get(gameId)
+function makeHTTP(roomId) {
+  if (connCache.has(roomId)) return connCache.get(roomId)
   // create an axios instance
   const service = axios.create({
     baseURL: API_URL, // url = base url + request url
@@ -24,7 +24,7 @@ function makeHTTP(gameId) {
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
       config.headers["Authorization"] = `Bearer ${Storage.getToken()}`
-      config.headers["x-game-id"] = gameId
+      config.headers["x-room-id"] = roomId
   
       return config;
     },
@@ -72,7 +72,7 @@ function makeHTTP(gameId) {
 
   service.verifyUser = () => verifyUser(service)
   
-  connCache.set(gameId, service)
+  connCache.set(roomId, service)
   return service
 }
 

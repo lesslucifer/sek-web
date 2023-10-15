@@ -46,7 +46,6 @@ function GameControl(props) {
         if (!game || !uid || game.status === 'CLOSED') return
         
         if (game.players[uid]?.status === 'AWAY') return 'AWAY'
-        if (!game.hand && uid === game.ownerId && game.status === 'STOPPED') return 'START_GAME'
         if (game.hand?.status === 'SD' && player) return 'SHOW_DOWN'
         if (!game.seats.includes(uid)) return
         if (game.hand?.players?.find?.(p => p.id === uid)?.status !== 'P') return
