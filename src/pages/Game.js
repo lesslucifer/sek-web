@@ -14,7 +14,7 @@ import MainGame from '../components/MainGame';
 import usePortrait from '../hooks/usePortrait';
 import { GetPlayerName, UpdatePlayerName } from '../models/game';
 import protob from '../proto/game.proto';
-import { SOCKET_URL } from '../utils/env';
+import { API_URL, SOCKET_PATH } from '../utils/env';
 import Storage from '../utils/storage';
 import Utils from '../utils/utils';
 import AdminSettings from './AdminSettings';
@@ -110,11 +110,12 @@ function Game() {
   const setupSocket = () => {
     if (socket.current) return
 
-    const conn = io(SOCKET_URL, {
+    const conn = io(new URL(API_URL).origin, {
       reconnection: true,
       reconnectionDelay: 500,
       reconnectionAttempts: 10,
-      autoConnect: false
+      autoConnect: false,
+      path: SOCKET_PATH
     })
 
     socket.current = conn
