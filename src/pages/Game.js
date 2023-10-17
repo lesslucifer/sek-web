@@ -120,9 +120,13 @@ function Game() {
 
     socket.current = conn
 
-    conn.connect()
-    conn.on('connect', () => {
+    console.log(`Start connecting new socket`)
+    const onConnected = () => {
+      console.log(`On socket`, conn.id, `connected`)
       conn.on('disconnect', () => {
+        console.log(`On socket`, conn.id, `disconnected`)
+        conn.off()
+        conn.on('connect', onConnected)
         setIsOnline(false)
       })
 
@@ -177,7 +181,10 @@ function Game() {
       }))
 
       http.post(`/room/sockets/${conn.id}`).then(() => setIsOnline(true))
-    })
+    }
+
+    conn.on('connect', onConnected)
+    conn.connect()
 
     conn.on('pong', (startTime) => {
       console.log(`Latency:`, Date.now() - startTime)
