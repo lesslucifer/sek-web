@@ -120,7 +120,7 @@ function Game() {
 
     socket.current = conn
 
-    console.log(`Start connecting new socket`)
+    console.log(`Start connecting new socket`, API_URL, SOCKET_PATH)
     const onConnected = () => {
       console.log(`On socket`, conn.id, `connected`)
       conn.on('disconnect', () => {
