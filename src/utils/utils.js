@@ -47,4 +47,16 @@ export default class Utils {
     static objDescription(obj) {
         return _.chain(_.entries(obj)).sortBy(([v, k]) => k).map(e => e.join(': ')).join('; ').value()
     }
+
+    static upsert(arr, elem, pred) {
+        console.log('upsert', _.clone(arr), elem, arr.findIndex(pred))
+        const idx = arr.findIndex(pred)
+        if (idx >= 0) {
+            arr[idx] = elem
+        }
+        else {
+            arr.push(elem)
+        }
+        console.log('upsert after', _.clone(arr), elem, arr.findIndex(pred))
+    }
 }

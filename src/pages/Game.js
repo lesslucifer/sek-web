@@ -149,6 +149,7 @@ function Game() {
       })
       conn.on('game', (data) => {
         try {
+          console.log('Set game')
           setGame(protob.Game.decode(new Uint8Array(data)))
         }
         catch (err) {
@@ -170,9 +171,13 @@ function Game() {
             queue: [...actions, ...prev.queue],
             running: prev.running
           }))
+          setGame((g) => ({
+            ...g,
+            time: Date.now()
+          }))
         }
         catch (err) {
-          console.log(`Me update error`, err)
+          console.log(`Action update error`, err)
         }
       })
       conn.on('message', receiveMessage)
@@ -271,6 +276,25 @@ function Game() {
 
   const performAction = Utils.autoError(async (act) => {
     console.log(`Perform action: ${moment().format('DD/MM HH:mm:ss')}`, act)
+
+    if (act.type === 'ERR') { 
+      return notification.error({
+          message: 'Error' + (act.playerId ? ` from player ${room.players[act.playerId].name}` : ''),
+          description: act.message
+      })
+    }
+
+    if (!game) return
+
+    if (act.type === 'NEW_EVENT') {
+      console.log(`New event`, act)
+      return Utils.upsert(game.events, act.event, e => e.id === act.event.id)
+    }
+
+    if (act.type === 'END_EVENT') {
+      console.log(`End event`, act)
+      _.remove(game.events, e => e.id === act.event.id)
+    }
 
     if (act.type === 'ERR') { 
       return notification.error({

@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import './MainGame.css';
 import GameControlButton from './GameControlButton';
 import Storage from '../utils/storage';
+import TimeBar from './TimeBar';
 
 function MainGame(props) {
   const portrait = usePortrait()
@@ -147,7 +148,11 @@ function MainGame(props) {
             {mySeatIndex < 0 && <GameControlButton onClick={takeSeat}>Join</GameControlButton>}
           </div>}
           {game && <div id="table" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            {game?.players?.map((p, i) => p.id !== uid && renderOtherPlayer(p, p.id === game.currentPlayerId))}
+            {game.players?.map((p, i) => p.id !== uid && renderOtherPlayer(p, p.id === game.currentPlayerId))}
+            {<div>{game.events.map(e => (<div key={e.id} >
+              <div>{e.event.type} - {game.time - e.beginAt} : ({e.timeoutAt - game.time}) </div>
+              <TimeBar begin={e.beginAt} end={e.timeoutAt} current={game.time} />
+            </div>))}</div>}
             {renderDeck()}
             {renderMe()}
           </div>}
