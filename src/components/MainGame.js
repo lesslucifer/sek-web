@@ -13,7 +13,7 @@ function MainGame(props) {
   const portrait = usePortrait()
   const [vw, vh] = useWindowSize()
   const { room, game, me, uid } = props
-  const { hideChat, startNewGame, sendGameRequest } = props
+  const { hideChat, startNewGame, sendGameRequest, eventResolver } = props
 
   const mySeatIndex = room?.seats?.indexOf(uid) ?? -1
 
@@ -85,6 +85,15 @@ function MainGame(props) {
     sendGameRequest('LEAVE_SEAT')
   }
 
+  const playCard = (card) => {
+    if (card.type === 'Defuse') {
+      sendGameRequest('ACTION', { type: 'DEFUSE', card: card.dex })
+    }
+    else {
+      sendGameRequest('ACTION', { type: 'PLAY_CARD', card: card.dex })
+    }
+  }
+
   const renderLoadingPage = () => {
     return (
       <>
@@ -118,7 +127,7 @@ function MainGame(props) {
 
   const renderDeck = () => {
     return (<div style={{ alignSelf: 'center' }}>
-      <GameControlButton style={{ height: '80px' }} onClick={() => sendGameRequest('ACTION', { type: 'DRAW' })}>Deck ({game.deck.nCard})</GameControlButton>
+      <GameControlButton style={{ height: '80px' }} onClick={() => sendGameRequest('ACTION', { type: 'DRAW' })}>Deck ({game.deck?.nCard})</GameControlButton>
     </div>)
   }
 
@@ -126,7 +135,8 @@ function MainGame(props) {
     if (!me) return
     const activeStyle = game.currentPlayerId === uid ? { color: 'red'} : {}
     return (<div style={{ display: 'flex', flexDirection: 'row', alignSelf: 'center', flexWrap: 'wrap' }}>
-      { me.cards.map(c => <GameControlButton key={c} style={{ margin: '10px', width: '80px', height: '40px', ...activeStyle }}>
+      { me.cards.map(c => <GameControlButton key={c} style={{ margin: '10px', width: '80px', height: '40px', ...activeStyle }}
+        onClick={() => playCard(game.deck.dex[c])}>
         { game.deck.dex[c].name }
       </GameControlButton>)}
     </div>)
@@ -149,10 +159,13 @@ function MainGame(props) {
           </div>}
           {game && <div id="table" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             {game.players?.map((p, i) => p.id !== uid && renderOtherPlayer(p, p.id === game.currentPlayerId))}
-            {<div>{game.events.map(e => (<div key={e.id} >
-              <div>{e.event.type} - {game.time - e.beginAt} : ({e.timeoutAt - game.time}) </div>
-              <TimeBar begin={e.beginAt} end={e.timeoutAt} current={game.time} />
-            </div>))}</div>}
+            {game.event && <div>
+              <div style={{ display: 'flex', alignItems: 'center', margin: '5px' }}>
+                <span style={{margin: '5px'}}>{game.event.type} ({game.event.id})</span>
+                {eventResolver(game.event)}
+              </div>
+              <TimeBar begin={game.event.beginAt} end={game.event.timeoutAt} current={game.time} />
+            </div>}
             {renderDeck()}
             {renderMe()}
           </div>}

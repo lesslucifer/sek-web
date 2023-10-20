@@ -49,7 +49,6 @@ export default class Utils {
     }
 
     static upsert(arr, elem, pred) {
-        console.log('upsert', _.clone(arr), elem, arr.findIndex(pred))
         const idx = arr.findIndex(pred)
         if (idx >= 0) {
             arr[idx] = elem
@@ -57,6 +56,5 @@ export default class Utils {
         else {
             arr.push(elem)
         }
-        console.log('upsert after', _.clone(arr), elem, arr.findIndex(pred))
     }
 }

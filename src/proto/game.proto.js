@@ -2147,11 +2147,15 @@
          * Properties of a GameEvent.
          * @exports IGameEvent
          * @interface IGameEvent
+         * @property {number|null} [id] GameEvent id
+         * @property {number|Long|null} [beginAt] GameEvent beginAt
+         * @property {number|Long|null} [timeoutAt] GameEvent timeoutAt
          * @property {string|null} [type] GameEvent type
          * @property {string|null} [playerId] GameEvent playerId
          * @property {number|null} [card] GameEvent card
          * @property {Array.<number>|null} [cards] GameEvent cards
          * @property {string|null} [callbackName] GameEvent callbackName
+         * @property {number|null} [deckCount] GameEvent deckCount
          */
     
         /**
@@ -2171,6 +2175,30 @@
         }
     
         /**
+         * GameEvent id.
+         * @member {number} id
+         * @memberof GameEvent
+         * @instance
+         */
+        GameEvent.prototype.id = 0;
+    
+        /**
+         * GameEvent beginAt.
+         * @member {number|Long} beginAt
+         * @memberof GameEvent
+         * @instance
+         */
+        GameEvent.prototype.beginAt = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+        /**
+         * GameEvent timeoutAt.
+         * @member {number|Long} timeoutAt
+         * @memberof GameEvent
+         * @instance
+         */
+        GameEvent.prototype.timeoutAt = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+        /**
          * GameEvent type.
          * @member {string} type
          * @memberof GameEvent
@@ -2180,19 +2208,19 @@
     
         /**
          * GameEvent playerId.
-         * @member {string} playerId
+         * @member {string|null|undefined} playerId
          * @memberof GameEvent
          * @instance
          */
-        GameEvent.prototype.playerId = "";
+        GameEvent.prototype.playerId = null;
     
         /**
          * GameEvent card.
-         * @member {number} card
+         * @member {number|null|undefined} card
          * @memberof GameEvent
          * @instance
          */
-        GameEvent.prototype.card = 0;
+        GameEvent.prototype.card = null;
     
         /**
          * GameEvent cards.
@@ -2210,8 +2238,38 @@
          */
         GameEvent.prototype.callbackName = null;
     
+        /**
+         * GameEvent deckCount.
+         * @member {number|null|undefined} deckCount
+         * @memberof GameEvent
+         * @instance
+         */
+        GameEvent.prototype.deckCount = null;
+    
         // OneOf field names bound to virtual getters and setters
         var $oneOfFields;
+    
+        /**
+         * GameEvent _playerId.
+         * @member {"playerId"|undefined} _playerId
+         * @memberof GameEvent
+         * @instance
+         */
+        Object.defineProperty(GameEvent.prototype, "_playerId", {
+            get: $util.oneOfGetter($oneOfFields = ["playerId"]),
+            set: $util.oneOfSetter($oneOfFields)
+        });
+    
+        /**
+         * GameEvent _card.
+         * @member {"card"|undefined} _card
+         * @memberof GameEvent
+         * @instance
+         */
+        Object.defineProperty(GameEvent.prototype, "_card", {
+            get: $util.oneOfGetter($oneOfFields = ["card"]),
+            set: $util.oneOfSetter($oneOfFields)
+        });
     
         /**
          * GameEvent _callbackName.
@@ -2221,6 +2279,17 @@
          */
         Object.defineProperty(GameEvent.prototype, "_callbackName", {
             get: $util.oneOfGetter($oneOfFields = ["callbackName"]),
+            set: $util.oneOfSetter($oneOfFields)
+        });
+    
+        /**
+         * GameEvent _deckCount.
+         * @member {"deckCount"|undefined} _deckCount
+         * @memberof GameEvent
+         * @instance
+         */
+        Object.defineProperty(GameEvent.prototype, "_deckCount", {
+            get: $util.oneOfGetter($oneOfFields = ["deckCount"]),
             set: $util.oneOfSetter($oneOfFields)
         });
     
@@ -2248,20 +2317,28 @@
         GameEvent.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
+            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.id);
+            if (message.beginAt != null && Object.hasOwnProperty.call(message, "beginAt"))
+                writer.uint32(/* id 2, wireType 0 =*/16).int64(message.beginAt);
+            if (message.timeoutAt != null && Object.hasOwnProperty.call(message, "timeoutAt"))
+                writer.uint32(/* id 3, wireType 0 =*/24).int64(message.timeoutAt);
             if (message.type != null && Object.hasOwnProperty.call(message, "type"))
-                writer.uint32(/* id 1, wireType 2 =*/10).string(message.type);
+                writer.uint32(/* id 4, wireType 2 =*/34).string(message.type);
             if (message.playerId != null && Object.hasOwnProperty.call(message, "playerId"))
-                writer.uint32(/* id 2, wireType 2 =*/18).string(message.playerId);
+                writer.uint32(/* id 5, wireType 2 =*/42).string(message.playerId);
             if (message.card != null && Object.hasOwnProperty.call(message, "card"))
-                writer.uint32(/* id 3, wireType 0 =*/24).int32(message.card);
+                writer.uint32(/* id 6, wireType 0 =*/48).int32(message.card);
             if (message.cards != null && message.cards.length) {
-                writer.uint32(/* id 4, wireType 2 =*/34).fork();
+                writer.uint32(/* id 7, wireType 2 =*/58).fork();
                 for (var i = 0; i < message.cards.length; ++i)
                     writer.int32(message.cards[i]);
                 writer.ldelim();
             }
             if (message.callbackName != null && Object.hasOwnProperty.call(message, "callbackName"))
-                writer.uint32(/* id 5, wireType 2 =*/42).string(message.callbackName);
+                writer.uint32(/* id 8, wireType 2 =*/66).string(message.callbackName);
+            if (message.deckCount != null && Object.hasOwnProperty.call(message, "deckCount"))
+                writer.uint32(/* id 9, wireType 0 =*/72).int32(message.deckCount);
             return writer;
         };
     
@@ -2297,18 +2374,30 @@
                 var tag = reader.uint32();
                 switch (tag >>> 3) {
                 case 1: {
-                        message.type = reader.string();
+                        message.id = reader.int32();
                         break;
                     }
                 case 2: {
-                        message.playerId = reader.string();
+                        message.beginAt = reader.int64();
                         break;
                     }
                 case 3: {
-                        message.card = reader.int32();
+                        message.timeoutAt = reader.int64();
                         break;
                     }
                 case 4: {
+                        message.type = reader.string();
+                        break;
+                    }
+                case 5: {
+                        message.playerId = reader.string();
+                        break;
+                    }
+                case 6: {
+                        message.card = reader.int32();
+                        break;
+                    }
+                case 7: {
                         if (!(message.cards && message.cards.length))
                             message.cards = [];
                         if ((tag & 7) === 2) {
@@ -2319,8 +2408,12 @@
                             message.cards.push(reader.int32());
                         break;
                     }
-                case 5: {
+                case 8: {
                         message.callbackName = reader.string();
+                        break;
+                    }
+                case 9: {
+                        message.deckCount = reader.int32();
                         break;
                     }
                 default:
@@ -2359,15 +2452,28 @@
             if (typeof message !== "object" || message === null)
                 return "object expected";
             var properties = {};
+            if (message.id != null && message.hasOwnProperty("id"))
+                if (!$util.isInteger(message.id))
+                    return "id: integer expected";
+            if (message.beginAt != null && message.hasOwnProperty("beginAt"))
+                if (!$util.isInteger(message.beginAt) && !(message.beginAt && $util.isInteger(message.beginAt.low) && $util.isInteger(message.beginAt.high)))
+                    return "beginAt: integer|Long expected";
+            if (message.timeoutAt != null && message.hasOwnProperty("timeoutAt"))
+                if (!$util.isInteger(message.timeoutAt) && !(message.timeoutAt && $util.isInteger(message.timeoutAt.low) && $util.isInteger(message.timeoutAt.high)))
+                    return "timeoutAt: integer|Long expected";
             if (message.type != null && message.hasOwnProperty("type"))
                 if (!$util.isString(message.type))
                     return "type: string expected";
-            if (message.playerId != null && message.hasOwnProperty("playerId"))
+            if (message.playerId != null && message.hasOwnProperty("playerId")) {
+                properties._playerId = 1;
                 if (!$util.isString(message.playerId))
                     return "playerId: string expected";
-            if (message.card != null && message.hasOwnProperty("card"))
+            }
+            if (message.card != null && message.hasOwnProperty("card")) {
+                properties._card = 1;
                 if (!$util.isInteger(message.card))
                     return "card: integer expected";
+            }
             if (message.cards != null && message.hasOwnProperty("cards")) {
                 if (!Array.isArray(message.cards))
                     return "cards: array expected";
@@ -2379,6 +2485,11 @@
                 properties._callbackName = 1;
                 if (!$util.isString(message.callbackName))
                     return "callbackName: string expected";
+            }
+            if (message.deckCount != null && message.hasOwnProperty("deckCount")) {
+                properties._deckCount = 1;
+                if (!$util.isInteger(message.deckCount))
+                    return "deckCount: integer expected";
             }
             return null;
         };
@@ -2395,6 +2506,26 @@
             if (object instanceof $root.GameEvent)
                 return object;
             var message = new $root.GameEvent();
+            if (object.id != null)
+                message.id = object.id | 0;
+            if (object.beginAt != null)
+                if ($util.Long)
+                    (message.beginAt = $util.Long.fromValue(object.beginAt)).unsigned = false;
+                else if (typeof object.beginAt === "string")
+                    message.beginAt = parseInt(object.beginAt, 10);
+                else if (typeof object.beginAt === "number")
+                    message.beginAt = object.beginAt;
+                else if (typeof object.beginAt === "object")
+                    message.beginAt = new $util.LongBits(object.beginAt.low >>> 0, object.beginAt.high >>> 0).toNumber();
+            if (object.timeoutAt != null)
+                if ($util.Long)
+                    (message.timeoutAt = $util.Long.fromValue(object.timeoutAt)).unsigned = false;
+                else if (typeof object.timeoutAt === "string")
+                    message.timeoutAt = parseInt(object.timeoutAt, 10);
+                else if (typeof object.timeoutAt === "number")
+                    message.timeoutAt = object.timeoutAt;
+                else if (typeof object.timeoutAt === "object")
+                    message.timeoutAt = new $util.LongBits(object.timeoutAt.low >>> 0, object.timeoutAt.high >>> 0).toNumber();
             if (object.type != null)
                 message.type = String(object.type);
             if (object.playerId != null)
@@ -2410,6 +2541,8 @@
             }
             if (object.callbackName != null)
                 message.callbackName = String(object.callbackName);
+            if (object.deckCount != null)
+                message.deckCount = object.deckCount | 0;
             return message;
         };
     
@@ -2429,16 +2562,43 @@
             if (options.arrays || options.defaults)
                 object.cards = [];
             if (options.defaults) {
+                object.id = 0;
+                if ($util.Long) {
+                    var long = new $util.Long(0, 0, false);
+                    object.beginAt = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.beginAt = options.longs === String ? "0" : 0;
+                if ($util.Long) {
+                    var long = new $util.Long(0, 0, false);
+                    object.timeoutAt = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.timeoutAt = options.longs === String ? "0" : 0;
                 object.type = "";
-                object.playerId = "";
-                object.card = 0;
             }
+            if (message.id != null && message.hasOwnProperty("id"))
+                object.id = message.id;
+            if (message.beginAt != null && message.hasOwnProperty("beginAt"))
+                if (typeof message.beginAt === "number")
+                    object.beginAt = options.longs === String ? String(message.beginAt) : message.beginAt;
+                else
+                    object.beginAt = options.longs === String ? $util.Long.prototype.toString.call(message.beginAt) : options.longs === Number ? new $util.LongBits(message.beginAt.low >>> 0, message.beginAt.high >>> 0).toNumber() : message.beginAt;
+            if (message.timeoutAt != null && message.hasOwnProperty("timeoutAt"))
+                if (typeof message.timeoutAt === "number")
+                    object.timeoutAt = options.longs === String ? String(message.timeoutAt) : message.timeoutAt;
+                else
+                    object.timeoutAt = options.longs === String ? $util.Long.prototype.toString.call(message.timeoutAt) : options.longs === Number ? new $util.LongBits(message.timeoutAt.low >>> 0, message.timeoutAt.high >>> 0).toNumber() : message.timeoutAt;
             if (message.type != null && message.hasOwnProperty("type"))
                 object.type = message.type;
-            if (message.playerId != null && message.hasOwnProperty("playerId"))
+            if (message.playerId != null && message.hasOwnProperty("playerId")) {
                 object.playerId = message.playerId;
-            if (message.card != null && message.hasOwnProperty("card"))
+                if (options.oneofs)
+                    object._playerId = "playerId";
+            }
+            if (message.card != null && message.hasOwnProperty("card")) {
                 object.card = message.card;
+                if (options.oneofs)
+                    object._card = "card";
+            }
             if (message.cards && message.cards.length) {
                 object.cards = [];
                 for (var j = 0; j < message.cards.length; ++j)
@@ -2448,6 +2608,11 @@
                 object.callbackName = message.callbackName;
                 if (options.oneofs)
                     object._callbackName = "callbackName";
+            }
+            if (message.deckCount != null && message.hasOwnProperty("deckCount")) {
+                object.deckCount = message.deckCount;
+                if (options.oneofs)
+                    object._deckCount = "deckCount";
             }
             return object;
         };
@@ -2481,312 +2646,6 @@
         return GameEvent;
     })();
     
-    $root.GameEventTimer = (function() {
-    
-        /**
-         * Properties of a GameEventTimer.
-         * @exports IGameEventTimer
-         * @interface IGameEventTimer
-         * @property {number|null} [id] GameEventTimer id
-         * @property {number|Long|null} [beginAt] GameEventTimer beginAt
-         * @property {number|Long|null} [timeoutAt] GameEventTimer timeoutAt
-         * @property {IGameEvent|null} [event] GameEventTimer event
-         */
-    
-        /**
-         * Constructs a new GameEventTimer.
-         * @exports GameEventTimer
-         * @classdesc Represents a GameEventTimer.
-         * @implements IGameEventTimer
-         * @constructor
-         * @param {IGameEventTimer=} [properties] Properties to set
-         */
-        function GameEventTimer(properties) {
-            if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
-    
-        /**
-         * GameEventTimer id.
-         * @member {number} id
-         * @memberof GameEventTimer
-         * @instance
-         */
-        GameEventTimer.prototype.id = 0;
-    
-        /**
-         * GameEventTimer beginAt.
-         * @member {number|Long} beginAt
-         * @memberof GameEventTimer
-         * @instance
-         */
-        GameEventTimer.prototype.beginAt = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-        /**
-         * GameEventTimer timeoutAt.
-         * @member {number|Long} timeoutAt
-         * @memberof GameEventTimer
-         * @instance
-         */
-        GameEventTimer.prototype.timeoutAt = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-        /**
-         * GameEventTimer event.
-         * @member {IGameEvent|null|undefined} event
-         * @memberof GameEventTimer
-         * @instance
-         */
-        GameEventTimer.prototype.event = null;
-    
-        /**
-         * Creates a new GameEventTimer instance using the specified properties.
-         * @function create
-         * @memberof GameEventTimer
-         * @static
-         * @param {IGameEventTimer=} [properties] Properties to set
-         * @returns {GameEventTimer} GameEventTimer instance
-         */
-        GameEventTimer.create = function create(properties) {
-            return new GameEventTimer(properties);
-        };
-    
-        /**
-         * Encodes the specified GameEventTimer message. Does not implicitly {@link GameEventTimer.verify|verify} messages.
-         * @function encode
-         * @memberof GameEventTimer
-         * @static
-         * @param {IGameEventTimer} message GameEventTimer message or plain object to encode
-         * @param {$protobuf.Writer} [writer] Writer to encode to
-         * @returns {$protobuf.Writer} Writer
-         */
-        GameEventTimer.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.id != null && Object.hasOwnProperty.call(message, "id"))
-                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.id);
-            if (message.beginAt != null && Object.hasOwnProperty.call(message, "beginAt"))
-                writer.uint32(/* id 2, wireType 0 =*/16).int64(message.beginAt);
-            if (message.timeoutAt != null && Object.hasOwnProperty.call(message, "timeoutAt"))
-                writer.uint32(/* id 3, wireType 0 =*/24).int64(message.timeoutAt);
-            if (message.event != null && Object.hasOwnProperty.call(message, "event"))
-                $root.GameEvent.encode(message.event, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-            return writer;
-        };
-    
-        /**
-         * Encodes the specified GameEventTimer message, length delimited. Does not implicitly {@link GameEventTimer.verify|verify} messages.
-         * @function encodeDelimited
-         * @memberof GameEventTimer
-         * @static
-         * @param {IGameEventTimer} message GameEventTimer message or plain object to encode
-         * @param {$protobuf.Writer} [writer] Writer to encode to
-         * @returns {$protobuf.Writer} Writer
-         */
-        GameEventTimer.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
-    
-        /**
-         * Decodes a GameEventTimer message from the specified reader or buffer.
-         * @function decode
-         * @memberof GameEventTimer
-         * @static
-         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @param {number} [length] Message length if known beforehand
-         * @returns {GameEventTimer} GameEventTimer
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        GameEventTimer.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.GameEventTimer();
-            while (reader.pos < end) {
-                var tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1: {
-                        message.id = reader.int32();
-                        break;
-                    }
-                case 2: {
-                        message.beginAt = reader.int64();
-                        break;
-                    }
-                case 3: {
-                        message.timeoutAt = reader.int64();
-                        break;
-                    }
-                case 4: {
-                        message.event = $root.GameEvent.decode(reader, reader.uint32());
-                        break;
-                    }
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-                }
-            }
-            return message;
-        };
-    
-        /**
-         * Decodes a GameEventTimer message from the specified reader or buffer, length delimited.
-         * @function decodeDelimited
-         * @memberof GameEventTimer
-         * @static
-         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {GameEventTimer} GameEventTimer
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        GameEventTimer.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
-    
-        /**
-         * Verifies a GameEventTimer message.
-         * @function verify
-         * @memberof GameEventTimer
-         * @static
-         * @param {Object.<string,*>} message Plain object to verify
-         * @returns {string|null} `null` if valid, otherwise the reason why it is not
-         */
-        GameEventTimer.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            if (message.id != null && message.hasOwnProperty("id"))
-                if (!$util.isInteger(message.id))
-                    return "id: integer expected";
-            if (message.beginAt != null && message.hasOwnProperty("beginAt"))
-                if (!$util.isInteger(message.beginAt) && !(message.beginAt && $util.isInteger(message.beginAt.low) && $util.isInteger(message.beginAt.high)))
-                    return "beginAt: integer|Long expected";
-            if (message.timeoutAt != null && message.hasOwnProperty("timeoutAt"))
-                if (!$util.isInteger(message.timeoutAt) && !(message.timeoutAt && $util.isInteger(message.timeoutAt.low) && $util.isInteger(message.timeoutAt.high)))
-                    return "timeoutAt: integer|Long expected";
-            if (message.event != null && message.hasOwnProperty("event")) {
-                var error = $root.GameEvent.verify(message.event);
-                if (error)
-                    return "event." + error;
-            }
-            return null;
-        };
-    
-        /**
-         * Creates a GameEventTimer message from a plain object. Also converts values to their respective internal types.
-         * @function fromObject
-         * @memberof GameEventTimer
-         * @static
-         * @param {Object.<string,*>} object Plain object
-         * @returns {GameEventTimer} GameEventTimer
-         */
-        GameEventTimer.fromObject = function fromObject(object) {
-            if (object instanceof $root.GameEventTimer)
-                return object;
-            var message = new $root.GameEventTimer();
-            if (object.id != null)
-                message.id = object.id | 0;
-            if (object.beginAt != null)
-                if ($util.Long)
-                    (message.beginAt = $util.Long.fromValue(object.beginAt)).unsigned = false;
-                else if (typeof object.beginAt === "string")
-                    message.beginAt = parseInt(object.beginAt, 10);
-                else if (typeof object.beginAt === "number")
-                    message.beginAt = object.beginAt;
-                else if (typeof object.beginAt === "object")
-                    message.beginAt = new $util.LongBits(object.beginAt.low >>> 0, object.beginAt.high >>> 0).toNumber();
-            if (object.timeoutAt != null)
-                if ($util.Long)
-                    (message.timeoutAt = $util.Long.fromValue(object.timeoutAt)).unsigned = false;
-                else if (typeof object.timeoutAt === "string")
-                    message.timeoutAt = parseInt(object.timeoutAt, 10);
-                else if (typeof object.timeoutAt === "number")
-                    message.timeoutAt = object.timeoutAt;
-                else if (typeof object.timeoutAt === "object")
-                    message.timeoutAt = new $util.LongBits(object.timeoutAt.low >>> 0, object.timeoutAt.high >>> 0).toNumber();
-            if (object.event != null) {
-                if (typeof object.event !== "object")
-                    throw TypeError(".GameEventTimer.event: object expected");
-                message.event = $root.GameEvent.fromObject(object.event);
-            }
-            return message;
-        };
-    
-        /**
-         * Creates a plain object from a GameEventTimer message. Also converts values to other types if specified.
-         * @function toObject
-         * @memberof GameEventTimer
-         * @static
-         * @param {GameEventTimer} message GameEventTimer
-         * @param {$protobuf.IConversionOptions} [options] Conversion options
-         * @returns {Object.<string,*>} Plain object
-         */
-        GameEventTimer.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            var object = {};
-            if (options.defaults) {
-                object.id = 0;
-                if ($util.Long) {
-                    var long = new $util.Long(0, 0, false);
-                    object.beginAt = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
-                } else
-                    object.beginAt = options.longs === String ? "0" : 0;
-                if ($util.Long) {
-                    var long = new $util.Long(0, 0, false);
-                    object.timeoutAt = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
-                } else
-                    object.timeoutAt = options.longs === String ? "0" : 0;
-                object.event = null;
-            }
-            if (message.id != null && message.hasOwnProperty("id"))
-                object.id = message.id;
-            if (message.beginAt != null && message.hasOwnProperty("beginAt"))
-                if (typeof message.beginAt === "number")
-                    object.beginAt = options.longs === String ? String(message.beginAt) : message.beginAt;
-                else
-                    object.beginAt = options.longs === String ? $util.Long.prototype.toString.call(message.beginAt) : options.longs === Number ? new $util.LongBits(message.beginAt.low >>> 0, message.beginAt.high >>> 0).toNumber() : message.beginAt;
-            if (message.timeoutAt != null && message.hasOwnProperty("timeoutAt"))
-                if (typeof message.timeoutAt === "number")
-                    object.timeoutAt = options.longs === String ? String(message.timeoutAt) : message.timeoutAt;
-                else
-                    object.timeoutAt = options.longs === String ? $util.Long.prototype.toString.call(message.timeoutAt) : options.longs === Number ? new $util.LongBits(message.timeoutAt.low >>> 0, message.timeoutAt.high >>> 0).toNumber() : message.timeoutAt;
-            if (message.event != null && message.hasOwnProperty("event"))
-                object.event = $root.GameEvent.toObject(message.event, options);
-            return object;
-        };
-    
-        /**
-         * Converts this GameEventTimer to JSON.
-         * @function toJSON
-         * @memberof GameEventTimer
-         * @instance
-         * @returns {Object.<string,*>} JSON object
-         */
-        GameEventTimer.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
-    
-        /**
-         * Gets the default type url for GameEventTimer
-         * @function getTypeUrl
-         * @memberof GameEventTimer
-         * @static
-         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns {string} The default type url
-         */
-        GameEventTimer.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-            if (typeUrlPrefix === undefined) {
-                typeUrlPrefix = "type.googleapis.com";
-            }
-            return typeUrlPrefix + "/GameEventTimer";
-        };
-    
-        return GameEventTimer;
-    })();
-    
     $root.Game = (function() {
     
         /**
@@ -2800,8 +2659,9 @@
          * @property {IDeck|null} [deck] Game deck
          * @property {Array.<string>|null} [graveyard] Game graveyard
          * @property {Array.<IGamePlayer>|null} [players] Game players
-         * @property {Array.<IGameEventTimer>|null} [events] Game events
+         * @property {IGameEvent|null} [event] Game event
          * @property {number|Long|null} [time] Game time
+         * @property {number|null} [turnStack] Game turnStack
          */
     
         /**
@@ -2815,7 +2675,6 @@
         function Game(properties) {
             this.graveyard = [];
             this.players = [];
-            this.events = [];
             if (properties)
                 for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
@@ -2879,12 +2738,12 @@
         Game.prototype.players = $util.emptyArray;
     
         /**
-         * Game events.
-         * @member {Array.<IGameEventTimer>} events
+         * Game event.
+         * @member {IGameEvent|null|undefined} event
          * @memberof Game
          * @instance
          */
-        Game.prototype.events = $util.emptyArray;
+        Game.prototype.event = null;
     
         /**
          * Game time.
@@ -2893,6 +2752,28 @@
          * @instance
          */
         Game.prototype.time = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+        /**
+         * Game turnStack.
+         * @member {number} turnStack
+         * @memberof Game
+         * @instance
+         */
+        Game.prototype.turnStack = 0;
+    
+        // OneOf field names bound to virtual getters and setters
+        var $oneOfFields;
+    
+        /**
+         * Game _event.
+         * @member {"event"|undefined} _event
+         * @memberof Game
+         * @instance
+         */
+        Object.defineProperty(Game.prototype, "_event", {
+            get: $util.oneOfGetter($oneOfFields = ["event"]),
+            set: $util.oneOfSetter($oneOfFields)
+        });
     
         /**
          * Creates a new Game instance using the specified properties.
@@ -2934,11 +2815,12 @@
             if (message.players != null && message.players.length)
                 for (var i = 0; i < message.players.length; ++i)
                     $root.GamePlayer.encode(message.players[i], writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-            if (message.events != null && message.events.length)
-                for (var i = 0; i < message.events.length; ++i)
-                    $root.GameEventTimer.encode(message.events[i], writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+            if (message.event != null && Object.hasOwnProperty.call(message, "event"))
+                $root.GameEvent.encode(message.event, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
             if (message.time != null && Object.hasOwnProperty.call(message, "time"))
                 writer.uint32(/* id 9, wireType 0 =*/72).int64(message.time);
+            if (message.turnStack != null && Object.hasOwnProperty.call(message, "turnStack"))
+                writer.uint32(/* id 10, wireType 0 =*/80).int32(message.turnStack);
             return writer;
         };
     
@@ -3006,13 +2888,15 @@
                         break;
                     }
                 case 8: {
-                        if (!(message.events && message.events.length))
-                            message.events = [];
-                        message.events.push($root.GameEventTimer.decode(reader, reader.uint32()));
+                        message.event = $root.GameEvent.decode(reader, reader.uint32());
                         break;
                     }
                 case 9: {
                         message.time = reader.int64();
+                        break;
+                    }
+                case 10: {
+                        message.turnStack = reader.int32();
                         break;
                     }
                 default:
@@ -3050,6 +2934,7 @@
         Game.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            var properties = {};
             if (message.id != null && message.hasOwnProperty("id"))
                 if (!$util.isString(message.id))
                     return "id: string expected";
@@ -3085,18 +2970,20 @@
                         return "players." + error;
                 }
             }
-            if (message.events != null && message.hasOwnProperty("events")) {
-                if (!Array.isArray(message.events))
-                    return "events: array expected";
-                for (var i = 0; i < message.events.length; ++i) {
-                    var error = $root.GameEventTimer.verify(message.events[i]);
+            if (message.event != null && message.hasOwnProperty("event")) {
+                properties._event = 1;
+                {
+                    var error = $root.GameEvent.verify(message.event);
                     if (error)
-                        return "events." + error;
+                        return "event." + error;
                 }
             }
             if (message.time != null && message.hasOwnProperty("time"))
                 if (!$util.isInteger(message.time) && !(message.time && $util.isInteger(message.time.low) && $util.isInteger(message.time.high)))
                     return "time: integer|Long expected";
+            if (message.turnStack != null && message.hasOwnProperty("turnStack"))
+                if (!$util.isInteger(message.turnStack))
+                    return "turnStack: integer expected";
             return null;
         };
     
@@ -3145,15 +3032,10 @@
                     message.players[i] = $root.GamePlayer.fromObject(object.players[i]);
                 }
             }
-            if (object.events) {
-                if (!Array.isArray(object.events))
-                    throw TypeError(".Game.events: array expected");
-                message.events = [];
-                for (var i = 0; i < object.events.length; ++i) {
-                    if (typeof object.events[i] !== "object")
-                        throw TypeError(".Game.events: object expected");
-                    message.events[i] = $root.GameEventTimer.fromObject(object.events[i]);
-                }
+            if (object.event != null) {
+                if (typeof object.event !== "object")
+                    throw TypeError(".Game.event: object expected");
+                message.event = $root.GameEvent.fromObject(object.event);
             }
             if (object.time != null)
                 if ($util.Long)
@@ -3164,6 +3046,8 @@
                     message.time = object.time;
                 else if (typeof object.time === "object")
                     message.time = new $util.LongBits(object.time.low >>> 0, object.time.high >>> 0).toNumber();
+            if (object.turnStack != null)
+                message.turnStack = object.turnStack | 0;
             return message;
         };
     
@@ -3183,7 +3067,6 @@
             if (options.arrays || options.defaults) {
                 object.graveyard = [];
                 object.players = [];
-                object.events = [];
             }
             if (options.defaults) {
                 object.id = "";
@@ -3196,6 +3079,7 @@
                     object.time = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                 } else
                     object.time = options.longs === String ? "0" : 0;
+                object.turnStack = 0;
             }
             if (message.id != null && message.hasOwnProperty("id"))
                 object.id = message.id;
@@ -3217,16 +3101,18 @@
                 for (var j = 0; j < message.players.length; ++j)
                     object.players[j] = $root.GamePlayer.toObject(message.players[j], options);
             }
-            if (message.events && message.events.length) {
-                object.events = [];
-                for (var j = 0; j < message.events.length; ++j)
-                    object.events[j] = $root.GameEventTimer.toObject(message.events[j], options);
+            if (message.event != null && message.hasOwnProperty("event")) {
+                object.event = $root.GameEvent.toObject(message.event, options);
+                if (options.oneofs)
+                    object._event = "event";
             }
             if (message.time != null && message.hasOwnProperty("time"))
                 if (typeof message.time === "number")
                     object.time = options.longs === String ? String(message.time) : message.time;
                 else
                     object.time = options.longs === String ? $util.Long.prototype.toString.call(message.time) : options.longs === Number ? new $util.LongBits(message.time.low >>> 0, message.time.high >>> 0).toNumber() : message.time;
+            if (message.turnStack != null && message.hasOwnProperty("turnStack"))
+                object.turnStack = message.turnStack;
             return object;
         };
     
@@ -3276,7 +3162,8 @@
          * @property {Array.<number>|null} [cards] GameLog cards
          * @property {Array.<string>|null} [playerIds] GameLog playerIds
          * @property {string|null} [message] GameLog message
-         * @property {IGameEventTimer|null} [event] GameLog event
+         * @property {IGameEvent|null} [event] GameLog event
+         * @property {number|null} [turnStack] GameLog turnStack
          */
     
         /**
@@ -3386,11 +3273,19 @@
     
         /**
          * GameLog event.
-         * @member {IGameEventTimer|null|undefined} event
+         * @member {IGameEvent|null|undefined} event
          * @memberof GameLog
          * @instance
          */
         GameLog.prototype.event = null;
+    
+        /**
+         * GameLog turnStack.
+         * @member {number|null|undefined} turnStack
+         * @memberof GameLog
+         * @instance
+         */
+        GameLog.prototype.turnStack = null;
     
         // OneOf field names bound to virtual getters and setters
         var $oneOfFields;
@@ -3473,6 +3368,17 @@
         });
     
         /**
+         * GameLog _turnStack.
+         * @member {"turnStack"|undefined} _turnStack
+         * @memberof GameLog
+         * @instance
+         */
+        Object.defineProperty(GameLog.prototype, "_turnStack", {
+            get: $util.oneOfGetter($oneOfFields = ["turnStack"]),
+            set: $util.oneOfSetter($oneOfFields)
+        });
+    
+        /**
          * Creates a new GameLog instance using the specified properties.
          * @function create
          * @memberof GameLog
@@ -3524,7 +3430,9 @@
             if (message.message != null && Object.hasOwnProperty.call(message, "message"))
                 writer.uint32(/* id 11, wireType 2 =*/90).string(message.message);
             if (message.event != null && Object.hasOwnProperty.call(message, "event"))
-                $root.GameEventTimer.encode(message.event, writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
+                $root.GameEvent.encode(message.event, writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
+            if (message.turnStack != null && Object.hasOwnProperty.call(message, "turnStack"))
+                writer.uint32(/* id 13, wireType 0 =*/104).int32(message.turnStack);
             return writer;
         };
     
@@ -3613,7 +3521,11 @@
                         break;
                     }
                 case 12: {
-                        message.event = $root.GameEventTimer.decode(reader, reader.uint32());
+                        message.event = $root.GameEvent.decode(reader, reader.uint32());
+                        break;
+                    }
+                case 13: {
+                        message.turnStack = reader.int32();
                         break;
                     }
                 default:
@@ -3708,10 +3620,15 @@
             if (message.event != null && message.hasOwnProperty("event")) {
                 properties._event = 1;
                 {
-                    var error = $root.GameEventTimer.verify(message.event);
+                    var error = $root.GameEvent.verify(message.event);
                     if (error)
                         return "event." + error;
                 }
+            }
+            if (message.turnStack != null && message.hasOwnProperty("turnStack")) {
+                properties._turnStack = 1;
+                if (!$util.isInteger(message.turnStack))
+                    return "turnStack: integer expected";
             }
             return null;
         };
@@ -3770,8 +3687,10 @@
             if (object.event != null) {
                 if (typeof object.event !== "object")
                     throw TypeError(".GameLog.event: object expected");
-                message.event = $root.GameEventTimer.fromObject(object.event);
+                message.event = $root.GameEvent.fromObject(object.event);
             }
+            if (object.turnStack != null)
+                message.turnStack = object.turnStack | 0;
             return message;
         };
     
@@ -3851,9 +3770,14 @@
                     object._message = "message";
             }
             if (message.event != null && message.hasOwnProperty("event")) {
-                object.event = $root.GameEventTimer.toObject(message.event, options);
+                object.event = $root.GameEvent.toObject(message.event, options);
                 if (options.oneofs)
                     object._event = "event";
+            }
+            if (message.turnStack != null && message.hasOwnProperty("turnStack")) {
+                object.turnStack = message.turnStack;
+                if (options.oneofs)
+                    object._turnStack = "turnStack";
             }
             return object;
         };

@@ -24,6 +24,7 @@ import Logs from './Logs';
 import PlayerManager from './PlayerManager';
 import Preferences from './Preferences';
 import moment from 'moment';
+import GameControlButton from '../components/GameControlButton';
 
 function Game() {
   const [, contextHolder] = notification.useNotification()
@@ -287,13 +288,10 @@ function Game() {
     if (!game) return
 
     if (act.type === 'NEW_EVENT') {
-      console.log(`New event`, act)
-      return Utils.upsert(game.events, act.event, e => e.id === act.event.id)
-    }
-
-    if (act.type === 'END_EVENT') {
-      console.log(`End event`, act)
-      _.remove(game.events, e => e.id === act.event.id)
+      setGame(g => (g && {
+        ...g,
+        event: act.event
+      }))
     }
 
     if (act.type === 'ERR') { 
@@ -327,13 +325,20 @@ function Game() {
         ...g,
         deck: {
           ...g.deck,
-          nCard: g.deck.nCard - 1
+          nCard: act.deckCount
         }
       }))
     }
 
     if (act.type === 'PLAY_CARD') {
-      await Swal.fire({ title: `Player ${room.players[act.playerId].name} played ${game?.deck?.dex?.[act.card]?.name}`, timer: 800, showConfirmButton: false })
+      console.log('Play card', game.deck)
+      const card = game?.deck?.dex?.[act.card]
+      if (card.type === 'Defuse') {
+        await Swal.fire({ title: `Player ${room.players[act.playerId].name} has played Defuse. Time to put Exploding Kitten back to deck`, timer: 800, showConfirmButton: false })
+      }
+      else {
+        await Swal.fire({ title: `Player ${room.players[act.playerId].name} played ${card?.name}`, timer: 800, showConfirmButton: false })
+      }
 
       if (act.playerId === uid) {
         setMe((prev) => ({
@@ -347,6 +352,16 @@ function Game() {
         ...p,
         nCard: p.nCard - 1
       }))
+    }
+
+    if (act.type === 'GOT_EK') {
+      await Swal.fire({ title: `Player ${room.players[act.playerId].name} has drawed exploding kitting\nPlease play defuse`, timer: 800, showConfirmButton: false })
+    }
+
+    if (act.type === 'DEFUSE') {
+      if (act.playerId === uid) {
+        await Swal.fire({ title: `Please play DEFUSE`, timer: 500, showConfirmButton: false })
+      }
     }
 
     if (act.type === 'PLAYER_LOST') {
@@ -376,6 +391,54 @@ function Game() {
 
     if (act.type === 'PUT_CARD_TO_DECK') {
       await Swal.fire({ title: `Player ${room.players[act.playerId].name} has put card ${game?.deck?.dex?.[act.card]?.name} back to deck`, timer: 800, showConfirmButton: false })
+      setGame(g => (g && {
+        ...g,
+        deck: {
+          ...g.deck,
+          nCard: act.deckCount
+        }
+      }))
+    }
+
+    if (act.type === 'SHUFFLE') {
+      await Swal.fire({ title: `Deck shuffled`, timer: 500, showConfirmButton: false })
+    }
+
+    if (act.type === 'CHANGE_DIRECTION') {
+      await Swal.fire({ title: `The direction has changed to ${act.index < 0 ? 'counter-' : ''}clockwise`, timer: 500, showConfirmButton: false })
+      setGame(g => (g && {
+        ...g,
+        direction: act.index
+      }))
+    }
+
+    if (act.type === 'STF') {
+      if (!act.cards.length) return
+      await Swal.fire({ title: `Upcomming cards\n${act.cards.map(c => game.deck.dex[c].name).join(', ')}`, timer: 5000, showConfirmButton: false })
+    }
+
+    if (act.type === 'STEAL') {
+      const card = game.deck.dex[act.card]
+
+      if (act.playerId === uid) {
+        setMe((prev) => ({
+          ...prev,
+          nCard: prev.nCard + 1,
+          cards: [...prev.cards, act.card]
+        }))
+      }
+
+      updateGamePlayer(act.playerId, (p) => ({
+        ...p,
+        nCard: p.nCard + 1
+      }))
+
+      act.playerIds.map(pid => updateGamePlayer(pid, (p) => ({
+        ...p,
+        nCard: p.nCard - 1
+      })))
+      
+      await Swal.fire({ title: `Player ${room.players[act.playerId]?.name} has stolen a card from ${room.players[_.first(act.playerIds)]?.name}\n${card?.name || ''}`, timer: 1000, showConfirmButton: false })
     }
 
     if (act.type === 'GAME_OVER') {
@@ -387,9 +450,30 @@ function Game() {
     }
 
     if (act.type === 'GAME_ERROR') {
-      await Swal.fire({ title: `Game ended due to from player ${room.players[act.playerId]?.name ?? 'Unknown'}` })
+      await Swal.fire({ title: `Game ended due to error from player ${room.players[act.playerId]?.name ?? 'Unknown'}` })
     }
   })
+
+  const eventResolver = (event) => {
+    if (event.type === 'PutCardBackEvent') {
+      console.log('PutCardBackEvent', event)
+      const sendRequest = (idx) => () => sendGameRequest('ACTION', { type: 'PUT_CARD_BACK', card: event.card, index: idx })
+      const deckCount = event.deckCount
+      return (<>
+        {_.range(5).map(idx => idx <= deckCount && <GameControlButton style={{minWidth: 0}} onClick={sendRequest(idx)} >{idx}</GameControlButton>)}
+        {deckCount >= 1 && <GameControlButton style={{minWidth: 0}} onClick={sendRequest(deckCount)} >Bottom</GameControlButton>}
+        {deckCount >= 2 && <GameControlButton style={{minWidth: 0}} onClick={sendRequest(deckCount - 1)} >Bottom-1</GameControlButton>}
+        <GameControlButton style={{minWidth: 0}} onClick={sendRequest(undefined)}>Random</GameControlButton>
+      </>)
+    }
+    if (event.type === 'SelectOtherPlayerEvent') {
+      return <>
+        {game.players?.map(p => p.status === 'P' && p.id !== uid && <GameControlButton style={{ margin: '5px' }} onClick={() => {
+          sendGameRequest('ACTION', { type: 'SELECT_PLAYER', affectedPlayerId: [p.id] })
+        }}>{room.players[p.id].name}</GameControlButton>)}
+      </>
+    }
+  }
 
   useEffect(() => {
     if (!actionRef.current || actionRef.current.running || !actionRef.current.queue.length) return
@@ -429,6 +513,7 @@ function Game() {
           hideChat={() => setShowChat(false)}
           setScale={setScale}
           startNewGame={startNewGame}
+          eventResolver={eventResolver}
         >
           {/* <Menu
             style={{ transform: `scale(${menuScale})`, transformOrigin: 'top left' }}
