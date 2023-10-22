@@ -1,4 +1,6 @@
 
+import React from 'react'
+
 import _ from 'lodash';
 import './GameControlButton.css'
 
@@ -18,10 +20,12 @@ function GameControlButton(props) {
         return String.fromCharCode(code)
     }
 
-    return (<div className={classNames} onClick={() => !props.disabled && props.onClick?.()} {..._.pick(props, 'style')}>
-        {props.bindKey && <span className='bindKey'>{keyFromCharCode(props.bindKey)}</span>}
-        <span className='unselectable'>{props.children}</span>
-    </div>)
+    return (<>
+        <div className={classNames} onClick={() => !props.disabled && props.onClick?.()} {..._.pick(props, 'style')}>
+            {props.bindKey && <span className='bindKey'>{keyFromCharCode(props.bindKey)}</span>}
+            <span className='unselectable'>{props.children}</span>
+        </div>
+    </>)
 }
 
 export default GameControlButton;

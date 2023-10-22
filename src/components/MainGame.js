@@ -1,19 +1,28 @@
 import { RedoOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import Swal from 'sweetalert2';
 import usePortrait from '../hooks/usePortrait';
 import useWindowSize from '../hooks/useWindowSize';
-import Utils from '../utils/utils';
-import Swal from 'sweetalert2';
-import './MainGame.css';
-import GameControlButton from './GameControlButton';
+import { gameState } from '../recoil-models/game';
+import { meState } from '../recoil-models/me';
+import { roomState } from '../recoil-models/room';
 import Storage from '../utils/storage';
+import Utils from '../utils/utils';
+import GameControlButton from './GameControlButton';
+import './MainGame.css';
 import TimeBar from './TimeBar';
 
 function MainGame(props) {
   const portrait = usePortrait()
   const [vw, vh] = useWindowSize()
-  const { room, game, me, uid } = props
+  const [room] = useRecoilState(roomState)
+  const [game] = useRecoilState(gameState)
+  const [me] = useRecoilState(meState)
   const { hideChat, startNewGame, sendGameRequest, eventResolver } = props
+  const { uid } = props
+
+  console.log(`Re-render main game`, game)
 
   const mySeatIndex = room?.seats?.indexOf(uid) ?? -1
 
@@ -43,7 +52,7 @@ function MainGame(props) {
   const onKeyPressed = (e) => {
     const elems = document.getElementsByClassName(`key-${e.keyCode}`)
     for (const elem of elems) {
-      elem.click()
+      elem instanceof HTMLElement && elem.click()
     }
   }
 
@@ -57,9 +66,11 @@ function MainGame(props) {
                   <span>Seat: </span> <input id="swal-takeSeat-seatInput" class="swal2-input" type="number" value="${room.seats.indexOf("") + 1}">
               </div>
           `,
-      preConfirm: function () {
-        const name = document.getElementById('swal-takeSeat-nameInput').value
-        const seat = parseInt(document.getElementById('swal-takeSeat-seatInput').value)
+      preConfirm: () => {
+        const nameElem = document.getElementById('swal-takeSeat-nameInput')
+        const name = (nameElem instanceof HTMLInputElement) && nameElem.value
+        const seatElem = document.getElementById('swal-takeSeat-seatInput')
+        const seat = (seatElem instanceof HTMLInputElement) && parseInt(seatElem.value)
         if (name?.length < 2 || name?.length > 25) return Swal.showValidationMessage('Name must have at least 2 and at most 25 characters')
         if (!seat || seat <= 0 || seat > 9) return Swal.showValidationMessage('Buy in must be from 1-9')
         return Promise.resolve({
@@ -67,14 +78,17 @@ function MainGame(props) {
           seat: seat - 1,
         })
       },
-      didOpen: function () {
-        document.getElementById('swal-takeSeat-seatInput').focus()
-        document.getElementById('swal-takeSeat-seatInput').select()
+      didOpen: () => {
+        const elem = document.getElementById('swal-takeSeat-seatInput')
+        if (!(elem instanceof HTMLInputElement)) return
+        elem.focus()
+        elem.select()
       },
       showCancelButton: true,
     })
 
     if (!res.isConfirmed) return
+    if (!res.value) return
 
     Storage.setLastName(res.value.name)
     sendGameRequest('TAKE_SEAT', { name: res.value.name, seat: res.value.seat })
@@ -132,6 +146,7 @@ function MainGame(props) {
   }
 
   const renderMe = () => {
+    // console.log(`Render me`, room, game, me)
     if (!me) return
     const activeStyle = game.currentPlayerId === uid ? { color: 'red'} : {}
     return (<div style={{ display: 'flex', flexDirection: 'row', alignSelf: 'center', flexWrap: 'wrap' }}>

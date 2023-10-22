@@ -1,6 +1,7 @@
 import { PlayCircleOutlined } from '@ant-design/icons';
 import { Modal, notification } from 'antd';
 import _ from 'lodash';
+import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import { Launcher } from 'react-chat-window';
 import { useNavigate, useParams } from "react-router-dom";
@@ -10,12 +11,17 @@ import io from 'socket.io-client';
 import Swal from 'sweetalert2';
 import newHTTP from '../api/http';
 import Audios from '../audios';
+import GameControlButton from '../components/GameControlButton';
 import MainGame from '../components/MainGame';
 import usePortrait from '../hooks/usePortrait';
 import { GetPlayerName, UpdatePlayerName } from '../models/game';
-import protob from '../proto/game.proto';
+import { onAction } from '../recoil-models/actions';
+import { gameState, onGame, setDeck, setGamePlayer } from '../recoil-models/game';
+import { meState, onMe } from '../recoil-models/me';
+import { onRoom, roomState } from '../recoil-models/room';
 import { API_URL, SOCKET_PATH } from '../utils/env';
 import Storage from '../utils/storage';
+import { useRecoilStateRef } from '../utils/userecoilstateref';
 import Utils from '../utils/utils';
 import AdminSettings from './AdminSettings';
 import './Game.css';
@@ -23,8 +29,6 @@ import Ledger from './Ledger';
 import Logs from './Logs';
 import PlayerManager from './PlayerManager';
 import Preferences from './Preferences';
-import moment from 'moment';
-import GameControlButton from '../components/GameControlButton';
 
 function Game() {
   const [, contextHolder] = notification.useNotification()
@@ -34,13 +38,9 @@ function Game() {
   const http = newHTTP(params.gameid)
   const socket = useRef(null)
 
-  const [room, setRoom, roomRef] = useStateRef(null)
-  const [game, setGame, gameRef] = useStateRef(null)
-  const [action, setAction, actionRef] = useStateRef({
-    queue: [],
-    running: null
-  })
-  const [me, setMe, meRef] = useStateRef(null)
+  const [room, setRoom, roomRef] = useRecoilStateRef(roomState)
+  const [game, setGame, gameRef] = useRecoilStateRef(gameState)
+  const [me, setMe, meRef] = useRecoilStateRef(meState)
   const [uid, setUid] = useState(null)
   const [scale, setScale] = useState(1)
 
@@ -82,17 +82,15 @@ function Game() {
   })), [uid])
 
   const trySetRoom = (newRoom) => {
-    if (newRoom?.id === params.gameid && newRoom.time > (roomRef.current?.time ?? -1)) {
-      setRoom(newRoom)
-    }
+    setRoom(newRoom)
   }
 
   const updateGamePlayer = (playerId, modifier) => {
-    if (!gameRef.current) return
-    const index = gameRef.current.players.findIndex(p => p.id === playerId)
+    if (!game) return
+    const index = game.players.findIndex(p => p.id === playerId)
     if (index < 0) return
 
-    const players = Array.from(gameRef.current.players)
+    const players = Array.from(game.players)
     players[index] = modifier(players[index])
     setGame((prev) => (prev && {
       ...prev,
@@ -131,56 +129,73 @@ function Game() {
         setIsOnline(false)
       })
 
-      conn.on('room', (data) => {
-        try {
-          if (!roomRef.current) return // socket update must wait to get the full game first
+    const ctx = {
+      roomRef, setRoom,
+      gameRef, setGame,
+      meRef, setMe,
+      setGamePlayer: setGamePlayer(setGame),
+      setDeck: setDeck(setGame),
+      uid
+    }
 
-          const newRoom = protob.Room.decode(new Uint8Array(data))
-          if (!newRoom.seats.length) delete newRoom.seats
-          if (_.isEmpty(newRoom.players)) delete newRoom.players
-          if (_.isEmpty(newRoom.onlinePlayers)) delete newRoom.onlinePlayers
+    conn.on('room', onRoom(ctx))
 
-          console.log(`Update room`, newRoom)
-          const game = { ...roomRef.current, ...newRoom }
-          trySetRoom(game)
-        }
-        catch (err) {
-          console.log(`Room update error`, err)
-        }
-      })
-      conn.on('game', (data) => {
-        try {
-          console.log('Set game')
-          setGame(protob.Game.decode(new Uint8Array(data)))
-        }
-        catch (err) {
-          console.log(`Game update error`, err)
-        }
-      })
-      conn.on('me', (data) => {
-        try {
-          setMe(protob.GamePlayer.decode(new Uint8Array(data)))
-        }
-        catch (err) {
-          console.log(`Me update error`, err)
-        }
-      })
-      conn.on('act', (data) => {
-        try {
-          const actions = data.map(d => protob.GameLog.decode(new Uint8Array(d)))
-          setAction((prev) => ({
-            queue: [...actions, ...prev.queue],
-            running: prev.running
-          }))
-          setGame((g) => ({
-            ...g,
-            time: Date.now()
-          }))
-        }
-        catch (err) {
-          console.log(`Action update error`, err)
-        }
-      })
+    conn.on('game', onGame(ctx))
+
+    conn.on('me', onMe(ctx))
+
+    conn.on('act', onAction(ctx, (act) => performAction(act)))
+
+      // conn.on('room', (data) => {
+      //   try {
+      //     if (!room) return // socket update must wait to get the full game first
+
+      //     const newRoom = protob.Room.decode(new Uint8Array(data))
+      //     // if (!newRoom.seats.length) delete newRoom.seats
+      //     // if (_.isEmpty(newRoom.players)) delete newRoom.players
+      //     // if (_.isEmpty(newRoom.onlinePlayers)) delete newRoom.onlinePlayers
+
+      //     console.log(`Update room`, newRoom)
+      //     const game = { ...roomRef.current, ...newRoom }
+      //     trySetRoom(game)
+      //   }
+      //   catch (err) {
+      //     console.log(`Room update error`, err)
+      //   }
+      // })
+      // conn.on('game', (data) => {
+      //   try {
+      //     console.log('Set game')
+      //     setGame(protob.Game.decode(new Uint8Array(data)))
+      //   }
+      //   catch (err) {
+      //     console.log(`Game update error`, err)
+      //   }
+      // })
+      // conn.on('me', (data) => {
+      //   try {
+      //     setMe(protob.GamePlayer.decode(new Uint8Array(data)))
+      //   }
+      //   catch (err) {
+      //     console.log(`Me update error`, err)
+      //   }
+      // })
+      // conn.on('act', (data) => {
+      //   try {
+      //     const actions = data.map(d => protob.GameLog.decode(new Uint8Array(d)))
+      //     setAction((prev) => ({
+      //       queue: [...actions, ...prev.queue],
+      //       running: prev.running
+      //     }))
+      //     setGame((g) => ({
+      //       ...g,
+      //       time: Date.now()
+      //     }))
+      //   }
+      //   catch (err) {
+      //     console.log(`Action update error`, err)
+      //   }
+      // })
       conn.on('message', receiveMessage)
       conn.on('error', (msg) => notification.error({
         message: msg
@@ -278,60 +293,16 @@ function Game() {
   const performAction = Utils.autoError(async (act) => {
     console.log(`Perform action: ${moment().format('DD/MM HH:mm:ss')}`, act)
 
-    if (act.type === 'ERR') { 
-      return notification.error({
-          message: 'Error' + (act.playerId ? ` from player ${room.players[act.playerId].name}` : ''),
-          description: act.message
-      })
-    }
-
-    if (!game) return
-
-    if (act.type === 'NEW_EVENT') {
-      setGame(g => (g && {
-        ...g,
-        event: act.event
-      }))
-    }
+    const [room, game, me, deck] = [roomRef.current, gameRef.current, meRef.current, gameRef.current?.deck]
 
     if (act.type === 'ERR') { 
       return notification.error({
           message: 'Error' + (act.playerId ? ` from player ${room.players[act.playerId].name}` : ''),
           description: act.message
       })
-    }
-
-    if (act.type === 'NEW_TURN') {
-      return setGame(g => (g && {
-        ...g,
-        currentPlayerId: act.playerId
-      }))
-    }
-
-    if (act.type === 'DRAW_CARD') {
-      if (act.playerId === uid) {
-        setMe((prev) => ({
-          ...prev,
-          nCard: prev.nCard + 1,
-          cards: [...prev.cards, act.card]
-        }))
-      }
-
-      updateGamePlayer(act.playerId, (p) => ({
-        ...p,
-        nCard: p.nCard + 1
-      }))
-      setGame(g => (g && {
-        ...g,
-        deck: {
-          ...g.deck,
-          nCard: act.deckCount
-        }
-      }))
     }
 
     if (act.type === 'PLAY_CARD') {
-      console.log('Play card', game.deck)
       const card = game?.deck?.dex?.[act.card]
       if (card.type === 'Defuse') {
         await Swal.fire({ title: `Player ${room.players[act.playerId].name} has played Defuse. Time to put Exploding Kitten back to deck`, timer: 800, showConfirmButton: false })
@@ -339,19 +310,6 @@ function Game() {
       else {
         await Swal.fire({ title: `Player ${room.players[act.playerId].name} played ${card?.name}`, timer: 800, showConfirmButton: false })
       }
-
-      if (act.playerId === uid) {
-        setMe((prev) => ({
-          ...prev,
-          nCard: prev.nCard - 1,
-          cards: prev.cards.filter(c => c !== act.card)
-        }))
-      }
-
-      updateGamePlayer(act.playerId, (p) => ({
-        ...p,
-        nCard: p.nCard - 1
-      }))
     }
 
     if (act.type === 'GOT_EK') {
@@ -366,38 +324,10 @@ function Game() {
 
     if (act.type === 'PLAYER_LOST') {
       await Swal.fire({ title: `Player ${room.players[act.playerId].name} has been defeated`, timer: 800, showConfirmButton: false })
-
-      if (act.playerId === uid) {
-        setMe((prev) => ({
-          ...prev,
-          status: 'LOST',
-          nCard: 0,
-          cards: []
-        }))
-      }
-
-      updateGamePlayer(act.playerId, (p) => ({
-        ...p,
-        nCard: 0, 
-        status: 'LOST',
-        cards: []
-      }))
-
-      setGame(g => (g && {
-        ...g,
-        graveyard: [...g.graveyard, ...act.cards]
-      }))
     }
 
     if (act.type === 'PUT_CARD_TO_DECK') {
       await Swal.fire({ title: `Player ${room.players[act.playerId].name} has put card ${game?.deck?.dex?.[act.card]?.name} back to deck`, timer: 800, showConfirmButton: false })
-      setGame(g => (g && {
-        ...g,
-        deck: {
-          ...g.deck,
-          nCard: act.deckCount
-        }
-      }))
     }
 
     if (act.type === 'SHUFFLE') {
@@ -406,10 +336,6 @@ function Game() {
 
     if (act.type === 'CHANGE_DIRECTION') {
       await Swal.fire({ title: `The direction has changed to ${act.index < 0 ? 'counter-' : ''}clockwise`, timer: 500, showConfirmButton: false })
-      setGame(g => (g && {
-        ...g,
-        direction: act.index
-      }))
     }
 
     if (act.type === 'STF') {
@@ -419,34 +345,11 @@ function Game() {
 
     if (act.type === 'STEAL') {
       const card = game.deck.dex[act.card]
-
-      if (act.playerId === uid) {
-        setMe((prev) => ({
-          ...prev,
-          nCard: prev.nCard + 1,
-          cards: [...prev.cards, act.card]
-        }))
-      }
-
-      updateGamePlayer(act.playerId, (p) => ({
-        ...p,
-        nCard: p.nCard + 1
-      }))
-
-      act.playerIds.map(pid => updateGamePlayer(pid, (p) => ({
-        ...p,
-        nCard: p.nCard - 1
-      })))
-      
       await Swal.fire({ title: `Player ${room.players[act.playerId]?.name} has stolen a card from ${room.players[_.first(act.playerIds)]?.name}\n${card?.name || ''}`, timer: 1000, showConfirmButton: false })
     }
 
     if (act.type === 'GAME_OVER') {
       await Swal.fire({ title: `Game ended! Winner: ${room.players[act.playerId].name}`, timer: 800, showConfirmButton: false })
-      setGame(g => (g && {
-        ...g,
-        status: 'O'
-      }))
     }
 
     if (act.type === 'GAME_ERROR') {
@@ -456,7 +359,6 @@ function Game() {
 
   const eventResolver = (event) => {
     if (event.type === 'PutCardBackEvent') {
-      console.log('PutCardBackEvent', event)
       const sendRequest = (idx) => () => sendGameRequest('ACTION', { type: 'PUT_CARD_BACK', card: event.card, index: idx })
       const deckCount = event.deckCount
       return (<>
@@ -476,22 +378,7 @@ function Game() {
   }
 
   useEffect(() => {
-    if (!actionRef.current || actionRef.current.running || !actionRef.current.queue.length) return
-    const runAction = actionRef.current.queue[0]
-    setAction((prev) => ({
-      queue: prev.queue.slice(1),
-      running: runAction
-    }))
-    performAction(runAction).then(() => {
-      setAction({
-        queue: actionRef.current.queue,
-        running: null
-      })
-    })
-  }, [action])
-
-  useEffect(() => {
-    if (roomRef.current && gameRef.current && !roomRef.current.hasGame) {
+    if (!room?.hasGame) {
       setGame(null)
       setMe(null)
     }
@@ -504,16 +391,13 @@ function Game() {
       {contextHolder}
       <div className={portrait ? 'port' : 'land'}>
         <MainGame
-          uid={uid}
-          room={room}
-          game={game}
-          me={me}
           isOnline={isOnline && socket.current?.connected}
           sendGameRequest={sendGameRequest}
           hideChat={() => setShowChat(false)}
           setScale={setScale}
           startNewGame={startNewGame}
           eventResolver={eventResolver}
+          uid={uid}
         >
           {/* <Menu
             style={{ transform: `scale(${menuScale})`, transformOrigin: 'top left' }}

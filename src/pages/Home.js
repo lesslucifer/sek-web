@@ -14,9 +14,9 @@ function HomePage() {
 
   const createNewgame = Utils.autoError(async () => {
     const resp = await http.post('/rooms')
-    const gameId = resp.data.data?.id
-    if (!gameId) throw new Error(`Cannot create game. Server error! Please try again`)
-    navigate(`/room/${gameId}`)
+    const roomId = resp.data.data?.id
+    if (!roomId) throw new Error(`Cannot create game. Server error! Please try again`)
+    navigate(`/room/${roomId}`)
   })
 
   return (

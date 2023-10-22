@@ -9,6 +9,7 @@ export default class Utils {
                 return await Promise.resolve(f(...args))
             }
             catch (err) {
+                console.log(err)
                 const msg = _.get(err, 'response.data.err.message', _.get(err, 'message', opts?.msg ?? 'Unknown error'))
                 const title = opts?.title ?? 'Error'
                 return notification.error({

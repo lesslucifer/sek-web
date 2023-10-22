@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "module": "NodeNext",
+    "jsx": "preserve",
+    "moduleResolution": "nodenext",
+    "checkJs": false,
+    "paths": {
+      "react": [ "./node_modules/@types/react" ]
+    }
+  }
+}
