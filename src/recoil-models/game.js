@@ -1,5 +1,5 @@
 import _, { memoize } from "lodash";
-import { atom, selector, useRecoilState } from "recoil";
+import { atom, constSelector, selector, useRecoilState } from "recoil";
 import protob from '../proto/game.proto';
 
 export const gameState = atom({
@@ -9,6 +9,7 @@ export const gameState = atom({
 
 export const onGame = ({ setGame }) => (data) => {
     const newGame = protob.Game.decode(new Uint8Array(data))
+    console.log(`On game`, newGame, setGame)
     setGame(newGame)
 }
 

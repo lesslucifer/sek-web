@@ -12,6 +12,11 @@ export class ExecutionQueue {
         this._trigger()
     }
 
+    clear() {
+        this.queue.clear()
+        this.idx = 0
+    }
+
     _trigger() {
         if (this.running) return
         if (this.idx >= this.queue.length) return

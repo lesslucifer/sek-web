@@ -38,7 +38,6 @@ export default class Utils {
                 cancelButtonText: 'Cancel'
             })
 
-            console.log('confirmAction', res.isConfirmed)
             if (res.isConfirmed) {
                 return await Promise.resolve(f(...args))
             }
@@ -57,5 +56,62 @@ export default class Utils {
         else {
             arr.push(elem)
         }
+    }
+
+    static wrapBy(fTarget) {
+        return new Proxy({}, {
+            apply(_target, thisArg, args) {
+                const target = fTarget()
+                return target && Reflect.apply(target, thisArg, args)
+            },
+            construct(_target, ...args) {
+                const target = fTarget()
+                return target && Reflect.construct(target, ...args)
+            },
+            defineProperty(_target, ...args) {
+                const target = fTarget()
+                return target && Reflect.defineProperty(target, ...args)
+            },
+            deleteProperty(_target, ...args) {
+                const target = fTarget()
+                return target && Reflect.deleteProperty(target, ...args)
+            },
+            getOwnPropertyDescriptor(_target, ...args) {
+                const target = fTarget()
+                return target && Reflect.getOwnPropertyDescriptor(target, ...args)
+            },
+            getPrototypeOf(_target, ...args) {
+                const target = fTarget()
+                return target && Reflect.getPrototypeOf(target, ...args)
+            },
+            has(_target, ...args) {
+                const target = fTarget()
+                return target && Reflect.has(target, ...args)
+            },
+            isExtensible(_target, ...args) {
+                const target = fTarget()
+                return target && Reflect.isExtensible(target, ...args)
+            },
+            ownKeys(_target, ...args) {
+                const target = fTarget()
+                return target && Reflect.ownKeys(target, ...args)
+            },
+            preventExtensions(_target, ...args) {
+                const target = fTarget()
+                return target && Reflect.preventExtensions(target, ...args)
+            },
+            setPrototypeOf(_target, ...args) {
+                const target = fTarget()
+                return target && Reflect.setPrototypeOf(target, ...args)
+            },
+            get(_target, prop, receiver) {
+                const target = fTarget()
+                return target && Reflect.get(target, prop, receiver)
+            },
+            set(_target, key, value, receiver) {
+                const target = fTarget()
+                return target && Reflect.set(target, key, value, receiver)
+            }
+        })
     }
 }

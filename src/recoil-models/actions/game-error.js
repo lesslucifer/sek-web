@@ -6,7 +6,7 @@ export class GameErrorActionHandler extends ActionHandler {
   onAction(act, { setGame }) {
     setGame(g => (g && {
       ...g,
-      status: 'O'
+      status: 'E'
     }))
   }
 }

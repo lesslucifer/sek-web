@@ -21,7 +21,6 @@ import { meState, onMe } from '../recoil-models/me';
 import { onRoom, roomState } from '../recoil-models/room';
 import { API_URL, SOCKET_PATH } from '../utils/env';
 import Storage from '../utils/storage';
-import { useRecoilStateRef } from '../utils/userecoilstateref';
 import Utils from '../utils/utils';
 import AdminSettings from './AdminSettings';
 import './Game.css';
@@ -29,6 +28,7 @@ import Ledger from './Ledger';
 import Logs from './Logs';
 import PlayerManager from './PlayerManager';
 import Preferences from './Preferences';
+import { useRefRecoilState } from 'utils/userecoilstateref';
 
 function Game() {
   const [, contextHolder] = notification.useNotification()
@@ -38,9 +38,9 @@ function Game() {
   const http = newHTTP(params.gameid)
   const socket = useRef(null)
 
-  const [room, setRoom, roomRef] = useRecoilStateRef(roomState)
-  const [game, setGame, gameRef] = useRecoilStateRef(gameState)
-  const [me, setMe, meRef] = useRecoilStateRef(meState)
+  const [room, setRoom] = useRefRecoiltate(roomState)
+  const [game, setGame] = useRefRecoilState(gameState)
+  const [me, setMe] = useRefRecoilState(meState)
   const [uid, setUid] = useState(null)
   const [scale, setScale] = useState(1)
 
@@ -85,19 +85,6 @@ function Game() {
     setRoom(newRoom)
   }
 
-  const updateGamePlayer = (playerId, modifier) => {
-    if (!game) return
-    const index = game.players.findIndex(p => p.id === playerId)
-    if (index < 0) return
-
-    const players = Array.from(game.players)
-    players[index] = modifier(players[index])
-    setGame((prev) => (prev && {
-      ...prev,
-      players
-    }))
-  }
-
   const reloadGame = () => http.get('/room').then(resp => {
     const { room, game, me } = resp.data?.data ?? {}
     if (!room) throw new Error(`Cannot find game ${params.gameid}`)
@@ -130,9 +117,9 @@ function Game() {
       })
 
     const ctx = {
-      roomRef, setRoom,
-      gameRef, setGame,
-      meRef, setMe,
+      room, setRoom,
+      game, setGame,
+      me, setMe,
       setGamePlayer: setGamePlayer(setGame),
       setDeck: setDeck(setGame),
       uid
@@ -146,56 +133,6 @@ function Game() {
 
     conn.on('act', onAction(ctx, (act) => performAction(act)))
 
-      // conn.on('room', (data) => {
-      //   try {
-      //     if (!room) return // socket update must wait to get the full game first
-
-      //     const newRoom = protob.Room.decode(new Uint8Array(data))
-      //     // if (!newRoom.seats.length) delete newRoom.seats
-      //     // if (_.isEmpty(newRoom.players)) delete newRoom.players
-      //     // if (_.isEmpty(newRoom.onlinePlayers)) delete newRoom.onlinePlayers
-
-      //     console.log(`Update room`, newRoom)
-      //     const game = { ...roomRef.current, ...newRoom }
-      //     trySetRoom(game)
-      //   }
-      //   catch (err) {
-      //     console.log(`Room update error`, err)
-      //   }
-      // })
-      // conn.on('game', (data) => {
-      //   try {
-      //     console.log('Set game')
-      //     setGame(protob.Game.decode(new Uint8Array(data)))
-      //   }
-      //   catch (err) {
-      //     console.log(`Game update error`, err)
-      //   }
-      // })
-      // conn.on('me', (data) => {
-      //   try {
-      //     setMe(protob.GamePlayer.decode(new Uint8Array(data)))
-      //   }
-      //   catch (err) {
-      //     console.log(`Me update error`, err)
-      //   }
-      // })
-      // conn.on('act', (data) => {
-      //   try {
-      //     const actions = data.map(d => protob.GameLog.decode(new Uint8Array(d)))
-      //     setAction((prev) => ({
-      //       queue: [...actions, ...prev.queue],
-      //       running: prev.running
-      //     }))
-      //     setGame((g) => ({
-      //       ...g,
-      //       time: Date.now()
-      //     }))
-      //   }
-      //   catch (err) {
-      //     console.log(`Action update error`, err)
-      //   }
-      // })
       conn.on('message', receiveMessage)
       conn.on('error', (msg) => notification.error({
         message: msg
@@ -292,8 +229,7 @@ function Game() {
 
   const performAction = Utils.autoError(async (act) => {
     console.log(`Perform action: ${moment().format('DD/MM HH:mm:ss')}`, act)
-
-    const [room, game, me, deck] = [roomRef.current, gameRef.current, meRef.current, gameRef.current?.deck]
+    console.log('performAction', room, game, room.id, game.id)
 
     if (act.type === 'ERR') { 
       return notification.error({
@@ -378,11 +314,16 @@ function Game() {
   }
 
   useEffect(() => {
-    if (!room?.hasGame) {
+    if (!room.gameId) {
       setGame(null)
       setMe(null)
+      return
     }
-  }, [room])
+    
+    if (room.gameId !== game.id) {
+      reloadGame()
+    }
+  }, [room.gameId])
 
   if (!room || !uid) return <MainGame room={room} uid={uid} />
 
@@ -466,7 +407,7 @@ function Game() {
         >
           <AdminSettings settings={room.settings} sendRequest={sendGameRequest} close={closeModal} />
         </Modal>
-        <Modal title="Preferences" centered
+        {/* <Modal title="Preferences" centered
           open={showingModal === 'PREFERENCES'}
           onCancel={closeModal}
           closable={true}
@@ -477,7 +418,7 @@ function Game() {
             setPrefs(prefs)
             Storage.setPreferences(prefs)
           }} close={closeModal} bb={room?.settings.bigBlind} />
-        </Modal>
+        </Modal> */}
         {room?.status === 'PAUSED' && <div className='gamePausedLayer' onClick={() => { }}>
           <span className='gamePausedTitle'>Game Paused</span>
           {room.ownerId !== uid && <span className='gamePausedMessage'>The game has been paused. Please contact the game owner to resume</span>}

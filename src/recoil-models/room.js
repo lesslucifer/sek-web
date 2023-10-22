@@ -8,5 +8,6 @@ export const roomState = atom({
 
 export const onRoom = ({ setRoom }) => (data) => {
     const newRoom = protob.Room.decode(new Uint8Array(data))
+    console.log(`ON_ROOM`, newRoom)
     setRoom(newRoom)
 }

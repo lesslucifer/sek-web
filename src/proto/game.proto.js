@@ -797,7 +797,7 @@
          * @property {string|null} [ownerId] Room ownerId
          * @property {string|null} [status] Room status
          * @property {number|Long|null} [time] Room time
-         * @property {boolean|null} [hasGame] Room hasGame
+         * @property {string|null} [gameId] Room gameId
          * @property {IRoomSettings|null} [settings] Room settings
          * @property {IRoomRequests|null} [requests] Room requests
          * @property {Array.<string>|null} [seats] Room seats
@@ -856,12 +856,12 @@
         Room.prototype.time = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
     
         /**
-         * Room hasGame.
-         * @member {boolean} hasGame
+         * Room gameId.
+         * @member {string} gameId
          * @memberof Room
          * @instance
          */
-        Room.prototype.hasGame = false;
+        Room.prototype.gameId = "";
     
         /**
          * Room settings.
@@ -935,8 +935,8 @@
                 writer.uint32(/* id 3, wireType 2 =*/26).string(message.status);
             if (message.time != null && Object.hasOwnProperty.call(message, "time"))
                 writer.uint32(/* id 4, wireType 0 =*/32).int64(message.time);
-            if (message.hasGame != null && Object.hasOwnProperty.call(message, "hasGame"))
-                writer.uint32(/* id 5, wireType 0 =*/40).bool(message.hasGame);
+            if (message.gameId != null && Object.hasOwnProperty.call(message, "gameId"))
+                writer.uint32(/* id 5, wireType 2 =*/42).string(message.gameId);
             if (message.settings != null && Object.hasOwnProperty.call(message, "settings"))
                 $root.RoomSettings.encode(message.settings, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
             if (message.requests != null && Object.hasOwnProperty.call(message, "requests"))
@@ -1003,7 +1003,7 @@
                         break;
                     }
                 case 5: {
-                        message.hasGame = reader.bool();
+                        message.gameId = reader.string();
                         break;
                     }
                 case 6: {
@@ -1096,9 +1096,9 @@
             if (message.time != null && message.hasOwnProperty("time"))
                 if (!$util.isInteger(message.time) && !(message.time && $util.isInteger(message.time.low) && $util.isInteger(message.time.high)))
                     return "time: integer|Long expected";
-            if (message.hasGame != null && message.hasOwnProperty("hasGame"))
-                if (typeof message.hasGame !== "boolean")
-                    return "hasGame: boolean expected";
+            if (message.gameId != null && message.hasOwnProperty("gameId"))
+                if (!$util.isString(message.gameId))
+                    return "gameId: string expected";
             if (message.settings != null && message.hasOwnProperty("settings")) {
                 var error = $root.RoomSettings.verify(message.settings);
                 if (error)
@@ -1163,8 +1163,8 @@
                     message.time = object.time;
                 else if (typeof object.time === "object")
                     message.time = new $util.LongBits(object.time.low >>> 0, object.time.high >>> 0).toNumber();
-            if (object.hasGame != null)
-                message.hasGame = Boolean(object.hasGame);
+            if (object.gameId != null)
+                message.gameId = String(object.gameId);
             if (object.settings != null) {
                 if (typeof object.settings !== "object")
                     throw TypeError(".Room.settings: object expected");
@@ -1230,7 +1230,7 @@
                     object.time = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                 } else
                     object.time = options.longs === String ? "0" : 0;
-                object.hasGame = false;
+                object.gameId = "";
                 object.settings = null;
                 object.requests = null;
             }
@@ -1245,8 +1245,8 @@
                     object.time = options.longs === String ? String(message.time) : message.time;
                 else
                     object.time = options.longs === String ? $util.Long.prototype.toString.call(message.time) : options.longs === Number ? new $util.LongBits(message.time.low >>> 0, message.time.high >>> 0).toNumber() : message.time;
-            if (message.hasGame != null && message.hasOwnProperty("hasGame"))
-                object.hasGame = message.hasGame;
+            if (message.gameId != null && message.hasOwnProperty("gameId"))
+                object.gameId = message.gameId;
             if (message.settings != null && message.hasOwnProperty("settings"))
                 object.settings = $root.RoomSettings.toObject(message.settings, options);
             if (message.requests != null && message.hasOwnProperty("requests"))
@@ -3809,6 +3809,268 @@
         };
     
         return GameLog;
+    })();
+    
+    $root.GameActionsMessage = (function() {
+    
+        /**
+         * Properties of a GameActionsMessage.
+         * @exports IGameActionsMessage
+         * @interface IGameActionsMessage
+         * @property {number|Long|null} [time] GameActionsMessage time
+         * @property {Array.<IGameLog>|null} [actions] GameActionsMessage actions
+         */
+    
+        /**
+         * Constructs a new GameActionsMessage.
+         * @exports GameActionsMessage
+         * @classdesc Represents a GameActionsMessage.
+         * @implements IGameActionsMessage
+         * @constructor
+         * @param {IGameActionsMessage=} [properties] Properties to set
+         */
+        function GameActionsMessage(properties) {
+            this.actions = [];
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+    
+        /**
+         * GameActionsMessage time.
+         * @member {number|Long} time
+         * @memberof GameActionsMessage
+         * @instance
+         */
+        GameActionsMessage.prototype.time = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+        /**
+         * GameActionsMessage actions.
+         * @member {Array.<IGameLog>} actions
+         * @memberof GameActionsMessage
+         * @instance
+         */
+        GameActionsMessage.prototype.actions = $util.emptyArray;
+    
+        /**
+         * Creates a new GameActionsMessage instance using the specified properties.
+         * @function create
+         * @memberof GameActionsMessage
+         * @static
+         * @param {IGameActionsMessage=} [properties] Properties to set
+         * @returns {GameActionsMessage} GameActionsMessage instance
+         */
+        GameActionsMessage.create = function create(properties) {
+            return new GameActionsMessage(properties);
+        };
+    
+        /**
+         * Encodes the specified GameActionsMessage message. Does not implicitly {@link GameActionsMessage.verify|verify} messages.
+         * @function encode
+         * @memberof GameActionsMessage
+         * @static
+         * @param {IGameActionsMessage} message GameActionsMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        GameActionsMessage.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.time != null && Object.hasOwnProperty.call(message, "time"))
+                writer.uint32(/* id 1, wireType 0 =*/8).int64(message.time);
+            if (message.actions != null && message.actions.length)
+                for (var i = 0; i < message.actions.length; ++i)
+                    $root.GameLog.encode(message.actions[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+            return writer;
+        };
+    
+        /**
+         * Encodes the specified GameActionsMessage message, length delimited. Does not implicitly {@link GameActionsMessage.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof GameActionsMessage
+         * @static
+         * @param {IGameActionsMessage} message GameActionsMessage message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        GameActionsMessage.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+    
+        /**
+         * Decodes a GameActionsMessage message from the specified reader or buffer.
+         * @function decode
+         * @memberof GameActionsMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {GameActionsMessage} GameActionsMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        GameActionsMessage.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.GameActionsMessage();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1: {
+                        message.time = reader.int64();
+                        break;
+                    }
+                case 2: {
+                        if (!(message.actions && message.actions.length))
+                            message.actions = [];
+                        message.actions.push($root.GameLog.decode(reader, reader.uint32()));
+                        break;
+                    }
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+    
+        /**
+         * Decodes a GameActionsMessage message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof GameActionsMessage
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {GameActionsMessage} GameActionsMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        GameActionsMessage.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+    
+        /**
+         * Verifies a GameActionsMessage message.
+         * @function verify
+         * @memberof GameActionsMessage
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        GameActionsMessage.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.time != null && message.hasOwnProperty("time"))
+                if (!$util.isInteger(message.time) && !(message.time && $util.isInteger(message.time.low) && $util.isInteger(message.time.high)))
+                    return "time: integer|Long expected";
+            if (message.actions != null && message.hasOwnProperty("actions")) {
+                if (!Array.isArray(message.actions))
+                    return "actions: array expected";
+                for (var i = 0; i < message.actions.length; ++i) {
+                    var error = $root.GameLog.verify(message.actions[i]);
+                    if (error)
+                        return "actions." + error;
+                }
+            }
+            return null;
+        };
+    
+        /**
+         * Creates a GameActionsMessage message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof GameActionsMessage
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {GameActionsMessage} GameActionsMessage
+         */
+        GameActionsMessage.fromObject = function fromObject(object) {
+            if (object instanceof $root.GameActionsMessage)
+                return object;
+            var message = new $root.GameActionsMessage();
+            if (object.time != null)
+                if ($util.Long)
+                    (message.time = $util.Long.fromValue(object.time)).unsigned = false;
+                else if (typeof object.time === "string")
+                    message.time = parseInt(object.time, 10);
+                else if (typeof object.time === "number")
+                    message.time = object.time;
+                else if (typeof object.time === "object")
+                    message.time = new $util.LongBits(object.time.low >>> 0, object.time.high >>> 0).toNumber();
+            if (object.actions) {
+                if (!Array.isArray(object.actions))
+                    throw TypeError(".GameActionsMessage.actions: array expected");
+                message.actions = [];
+                for (var i = 0; i < object.actions.length; ++i) {
+                    if (typeof object.actions[i] !== "object")
+                        throw TypeError(".GameActionsMessage.actions: object expected");
+                    message.actions[i] = $root.GameLog.fromObject(object.actions[i]);
+                }
+            }
+            return message;
+        };
+    
+        /**
+         * Creates a plain object from a GameActionsMessage message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof GameActionsMessage
+         * @static
+         * @param {GameActionsMessage} message GameActionsMessage
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        GameActionsMessage.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.arrays || options.defaults)
+                object.actions = [];
+            if (options.defaults)
+                if ($util.Long) {
+                    var long = new $util.Long(0, 0, false);
+                    object.time = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.time = options.longs === String ? "0" : 0;
+            if (message.time != null && message.hasOwnProperty("time"))
+                if (typeof message.time === "number")
+                    object.time = options.longs === String ? String(message.time) : message.time;
+                else
+                    object.time = options.longs === String ? $util.Long.prototype.toString.call(message.time) : options.longs === Number ? new $util.LongBits(message.time.low >>> 0, message.time.high >>> 0).toNumber() : message.time;
+            if (message.actions && message.actions.length) {
+                object.actions = [];
+                for (var j = 0; j < message.actions.length; ++j)
+                    object.actions[j] = $root.GameLog.toObject(message.actions[j], options);
+            }
+            return object;
+        };
+    
+        /**
+         * Converts this GameActionsMessage to JSON.
+         * @function toJSON
+         * @memberof GameActionsMessage
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        GameActionsMessage.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+    
+        /**
+         * Gets the default type url for GameActionsMessage
+         * @function getTypeUrl
+         * @memberof GameActionsMessage
+         * @static
+         * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns {string} The default type url
+         */
+        GameActionsMessage.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            if (typeUrlPrefix === undefined) {
+                typeUrlPrefix = "type.googleapis.com";
+            }
+            return typeUrlPrefix + "/GameActionsMessage";
+        };
+    
+        return GameActionsMessage;
     })();
 
     return $root;

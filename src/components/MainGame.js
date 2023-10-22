@@ -22,8 +22,6 @@ function MainGame(props) {
   const { hideChat, startNewGame, sendGameRequest, eventResolver } = props
   const { uid } = props
 
-  console.log(`Re-render main game`, game)
-
   const mySeatIndex = room?.seats?.indexOf(uid) ?? -1
 
   const calcCanvasSize = () => {

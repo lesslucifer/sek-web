@@ -26,17 +26,31 @@ const handlers = [
 
 const handlerMap = new Map(handlers.map(h => [h.actionType, h]))
 
+let Queue = undefined
+
 export const onAction = (ctx, performAction) => { 
     const queue = new ExecutionQueue((act) => {
         const handler = handlerMap.get(act.type)
-        console.log(`Execute action`, handler, act)
         handler?.onBeforeAction(act, ctx)
         const ret = performAction(act, ctx)
         return Promise.resolve(ret).then(() => handler?.onAction(act, ctx))
     })
 
-    return (data) => {
-        const actions = data.map(d => protob.GameLog.decode(new Uint8Array(d)))
-        queue.add(...actions)
+    if (Queue) {
+        Queue.clear()
+        Queue = queue
     }
+
+    return (data) => {
+        const { time, actions } = protob.GameActionsMessage.decode(new Uint8Array(data))
+        queue.add(...actions)
+        ctx.setGame(g => g && {
+            ...g,
+            time: time ?? Date.now()
+        })
+    }
+}
+
+export const clearActionExecutionQueue = () => {
+    Queue?.clear()
 }
