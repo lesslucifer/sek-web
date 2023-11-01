@@ -2,10 +2,11 @@ import { RedoOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import Swal from 'sweetalert2';
+import { useRefRecoilState } from 'utils/userecoilstateref';
 import usePortrait from '../hooks/usePortrait';
 import useWindowSize from '../hooks/useWindowSize';
-import { gameState } from '../recoil-models/game';
-import { meState } from '../recoil-models/me';
+import { dexState, eventState, gameState, gameTime, gameTimeState } from '../recoil-models/game';
+import { meState, myCardsState } from '../recoil-models/me';
 import { roomState } from '../recoil-models/room';
 import Storage from '../utils/storage';
 import Utils from '../utils/utils';
@@ -16,9 +17,10 @@ import TimeBar from './TimeBar';
 function MainGame(props) {
   const portrait = usePortrait()
   const [vw, vh] = useWindowSize()
-  const [room] = useRecoilState(roomState)
-  const [game] = useRecoilState(gameState)
-  const [me] = useRecoilState(meState)
+  const room = useRecoilValue(roomState)
+  const game = useRecoilValue(gameState)
+  const me = useRecoilValue(meState)
+  const event = useRecoilValue(eventState)
   const { hideChat, startNewGame, sendGameRequest, eventResolver } = props
   const { uid } = props
 
@@ -55,7 +57,8 @@ function MainGame(props) {
   }
 
   const takeSeat = Utils.autoError(async () => {
-    if (game || mySeatIndex >= 0) return
+    console.log(Object.keys(room))
+    if (game?.id || mySeatIndex >= 0) return
     const res = await Swal.fire({
       html: `
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
@@ -139,19 +142,7 @@ function MainGame(props) {
 
   const renderDeck = () => {
     return (<div style={{ alignSelf: 'center' }}>
-      <GameControlButton style={{ height: '80px' }} onClick={() => sendGameRequest('ACTION', { type: 'DRAW' })}>Deck ({game.deck?.nCard})</GameControlButton>
-    </div>)
-  }
-
-  const renderMe = () => {
-    // console.log(`Render me`, room, game, me)
-    if (!me) return
-    const activeStyle = game.currentPlayerId === uid ? { color: 'red'} : {}
-    return (<div style={{ display: 'flex', flexDirection: 'row', alignSelf: 'center', flexWrap: 'wrap' }}>
-      { me.cards.map(c => <GameControlButton key={c} style={{ margin: '10px', width: '80px', height: '40px', ...activeStyle }}
-        onClick={() => playCard(game.deck.dex[c])}>
-        { game.deck.dex[c].name }
-      </GameControlButton>)}
+      <GameControlButton style={{ height: '80px' }} onClick={() => sendGameRequest('ACTION', { type: 'DRAW' })}>Deck ({game?.deck?.nCard})</GameControlButton>
     </div>)
   }
 
@@ -172,20 +163,41 @@ function MainGame(props) {
           </div>}
           {game && <div id="table" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             {game.players?.map((p, i) => p.id !== uid && renderOtherPlayer(p, p.id === game.currentPlayerId))}
-            {game.event && <div>
-              <div style={{ display: 'flex', alignItems: 'center', margin: '5px' }}>
-                <span style={{margin: '5px'}}>{game.event.type} ({game.event.id})</span>
-                {eventResolver(game.event)}
-              </div>
-              <TimeBar begin={game.event.beginAt} end={game.event.timeoutAt} current={game.time} />
-            </div>}
+            <Event eventResolver={eventResolver} />
             {renderDeck()}
-            {renderMe()}
+            <Me isActive={game.currentPlayerId === uid} playCard={playCard} />
           </div>}
         </div>
       </div>
     </>
   );
+}
+
+function Me(props) {
+  const [myCards] = useRecoilState(myCardsState)
+  const [dex] = useRecoilState(dexState)
+
+  const activeStyle = props.isActive ? { color: 'red'} : {}
+
+  return (<div style={{ display: 'flex', flexDirection: 'row', alignSelf: 'center', flexWrap: 'wrap' }}>
+      { myCards?.map(c => <GameControlButton key={c} style={{ margin: '10px', width: '80px', height: '40px', ...activeStyle }}
+        onClick={() => props.playCard?.(dex[c])}>
+        { dex[c].name }
+      </GameControlButton>)}
+    </div>)
+}
+
+function Event(props) {
+  const event = useRecoilValue(eventState)
+  const gameTime = useRecoilValue(gameTimeState)
+
+  return (event && <div>
+    <div style={{ display: 'flex', alignItems: 'center', margin: '5px' }}>
+      <span style={{margin: '5px'}}>{event.type} ({event.id})</span>
+      {props.eventResolver?.(event)}
+    </div>
+    <TimeBar begin={event.beginAt} end={event.timeoutAt} current={gameTime} />
+  </div>)
 }
 
 export default MainGame;

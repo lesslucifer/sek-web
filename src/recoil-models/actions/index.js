@@ -44,10 +44,7 @@ export const onAction = (ctx, performAction) => {
     return (data) => {
         const { time, actions } = protob.GameActionsMessage.decode(new Uint8Array(data))
         queue.add(...actions)
-        ctx.setGame(g => g && {
-            ...g,
-            time: time ?? Date.now()
-        })
+        ctx.setGameTime(time ?? Date.now())
     }
 }
 

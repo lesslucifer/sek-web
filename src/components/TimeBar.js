@@ -14,7 +14,7 @@ function TimeBar(props) {
 
         const beginTime = Date.now()
         const interval = setInterval(() => {
-            const val = initValue + Date.now() - beginTime 
+        const val = initValue + Date.now() - beginTime 
             const percentage = 100 - (total > 0 ? 100 * val / total : 0)
             
             if (valRef.current) valRef.current.style.width = `${percentage}%`

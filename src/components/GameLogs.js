@@ -76,7 +76,7 @@ function GameLogs(props) {
         }
     })
 
-    if (!game) return
+    if (!game.id) return
 
     return (<>
         <div id="gameLogsContainer">

@@ -13,7 +13,7 @@ function AdminControl(props) {
         color: '#777777'
     }
 
-    return (<div className={`adminController`} {..._.pick(props, 'style')} >
+    return (<div className={`c`} {..._.pick(props, 'style')} >
         <Button type="ghost" size="large" 
             icon={<SolutionOutlined style={buttonIconStyles}/>}
             onClick={props.managePlayer}

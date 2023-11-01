@@ -9,6 +9,7 @@ import useStateRef from 'react-usestateref';
 import shortid from 'shortid';
 import io from 'socket.io-client';
 import Swal from 'sweetalert2';
+import { useRefRecoilState } from 'utils/userecoilstateref';
 import newHTTP from '../api/http';
 import Audios from '../audios';
 import GameControlButton from '../components/GameControlButton';
@@ -16,8 +17,8 @@ import MainGame from '../components/MainGame';
 import usePortrait from '../hooks/usePortrait';
 import { GetPlayerName, UpdatePlayerName } from '../models/game';
 import { onAction } from '../recoil-models/actions';
-import { gameState, onGame, setDeck, setGamePlayer } from '../recoil-models/game';
-import { meState, onMe } from '../recoil-models/me';
+import { deckState, dexState, eventState, gameState, gameTimeState, onGame, setGamePlayer } from '../recoil-models/game';
+import { meState, myCardsState, onMe } from '../recoil-models/me';
 import { onRoom, roomState } from '../recoil-models/room';
 import { API_URL, SOCKET_PATH } from '../utils/env';
 import Storage from '../utils/storage';
@@ -27,8 +28,7 @@ import './Game.css';
 import Ledger from './Ledger';
 import Logs from './Logs';
 import PlayerManager from './PlayerManager';
-import Preferences from './Preferences';
-import { useRefRecoilState } from 'utils/userecoilstateref';
+import { useRecoilValue } from 'recoil';
 
 function Game() {
   const [, contextHolder] = notification.useNotification()
@@ -38,11 +38,20 @@ function Game() {
   const http = newHTTP(params.gameid)
   const socket = useRef(null)
 
-  const [room, setRoom] = useRefRecoiltate(roomState)
+  const [room, setRoom] = useRefRecoilState(roomState)
   const [game, setGame] = useRefRecoilState(gameState)
   const [me, setMe] = useRefRecoilState(meState)
+  const [myCards, setMyCards] = useRefRecoilState(myCardsState)
+  const [deck, setDeck] = useRefRecoilState(deckState)
+  const [dex, setDex] = useRefRecoilState(dexState)
+  const [event, setEvent] = useRefRecoilState(eventState)
+  const [gameTime, setGameTime] = useRefRecoilState(gameTimeState)
   const [uid, setUid] = useState(null)
   const [scale, setScale] = useState(1)
+
+  useRecoilValue(roomState)
+  useRecoilValue(gameState)
+  useRecoilValue(meState)
 
   const [settings, setSettings] = useState({
     autoAction: '',
@@ -58,6 +67,19 @@ function Game() {
   const [showChat, setShowChat, showChatRef] = useStateRef(false)
 
   const modalWidth = portrait ? '98%' : '80%'
+  
+  const ctx = {
+    room, setRoom,
+    game, setGame,
+    me, setMe,
+    myCards, setMyCards,
+    setGamePlayer: setGamePlayer(setGame),
+    dex, setDex,
+    deck, setDeck,
+    event, setEvent,
+    gameTime, setGameTime,
+    uid
+  }
 
   UpdatePlayerName(room)
 
@@ -89,8 +111,8 @@ function Game() {
     const { room, game, me } = resp.data?.data ?? {}
     if (!room) throw new Error(`Cannot find game ${params.gameid}`)
     trySetRoom(room)
-    if (game) setGame(game)
-    if (me) setMe(me)
+    if (game) { onGame(ctx)(game) }
+    if (me) { onMe(ctx)(me) }
   })
 
   const setupSocket = () => {
@@ -116,22 +138,13 @@ function Game() {
         setIsOnline(false)
       })
 
-    const ctx = {
-      room, setRoom,
-      game, setGame,
-      me, setMe,
-      setGamePlayer: setGamePlayer(setGame),
-      setDeck: setDeck(setGame),
-      uid
-    }
+      conn.on('room', onRoom(ctx))
 
-    conn.on('room', onRoom(ctx))
+      conn.on('game', onGame(ctx))
 
-    conn.on('game', onGame(ctx))
+      conn.on('me', onMe(ctx))
 
-    conn.on('me', onMe(ctx))
-
-    conn.on('act', onAction(ctx, (act) => performAction(act)))
+      conn.on('act', onAction(ctx, (act) => performAction(act)))
 
       conn.on('message', receiveMessage)
       conn.on('error', (msg) => notification.error({
@@ -231,10 +244,10 @@ function Game() {
     console.log(`Perform action: ${moment().format('DD/MM HH:mm:ss')}`, act)
     console.log('performAction', room, game, room.id, game.id)
 
-    if (act.type === 'ERR') { 
+    if (act.type === 'ERR') {
       return notification.error({
-          message: 'Error' + (act.playerId ? ` from player ${room.players[act.playerId].name}` : ''),
-          description: act.message
+        message: 'Error' + (act.playerId ? ` from player ${room.players[act.playerId].name}` : ''),
+        description: act.message
       })
     }
 
@@ -298,10 +311,10 @@ function Game() {
       const sendRequest = (idx) => () => sendGameRequest('ACTION', { type: 'PUT_CARD_BACK', card: event.card, index: idx })
       const deckCount = event.deckCount
       return (<>
-        {_.range(5).map(idx => idx <= deckCount && <GameControlButton style={{minWidth: 0}} onClick={sendRequest(idx)} >{idx}</GameControlButton>)}
-        {deckCount >= 1 && <GameControlButton style={{minWidth: 0}} onClick={sendRequest(deckCount)} >Bottom</GameControlButton>}
-        {deckCount >= 2 && <GameControlButton style={{minWidth: 0}} onClick={sendRequest(deckCount - 1)} >Bottom-1</GameControlButton>}
-        <GameControlButton style={{minWidth: 0}} onClick={sendRequest(undefined)}>Random</GameControlButton>
+        {_.range(5).map(idx => idx <= deckCount && <GameControlButton style={{ minWidth: 0 }} onClick={sendRequest(idx)} >{idx}</GameControlButton>)}
+        {deckCount >= 1 && <GameControlButton style={{ minWidth: 0 }} onClick={sendRequest(deckCount)} >Bottom</GameControlButton>}
+        {deckCount >= 2 && <GameControlButton style={{ minWidth: 0 }} onClick={sendRequest(deckCount - 1)} >Bottom-1</GameControlButton>}
+        <GameControlButton style={{ minWidth: 0 }} onClick={sendRequest(undefined)}>Random</GameControlButton>
       </>)
     }
     if (event.type === 'SelectOtherPlayerEvent') {
@@ -319,7 +332,7 @@ function Game() {
       setMe(null)
       return
     }
-    
+
     if (room.gameId !== game.id) {
       reloadGame()
     }

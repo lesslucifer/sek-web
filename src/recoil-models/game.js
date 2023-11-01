@@ -7,60 +7,38 @@ export const gameState = atom({
     default: null
 })
 
-export const onGame = ({ setGame }) => (data) => {
-    const newGame = protob.Game.decode(new Uint8Array(data))
-    console.log(`On game`, newGame, setGame)
+export const deckState = atom({
+    key: 'game.deck',
+    default: null
+})
+
+export const dexState = atom({
+    key: 'game.deck.dex',
+    default: []
+})
+
+export const eventState = atom({
+    key: 'game.event',
+    default: null
+})
+
+export const gameTimeState = atom({
+    key: 'game.time',
+    default: Date.now()
+})
+
+export const onGame = ({ setGame, setDeck, setDex, setEvent, setGameTime }) => (data) => {
+    const newGame = (data instanceof ArrayBuffer) ? protob.Game.decode(new Uint8Array(data)) : data
     setGame(newGame)
+    setDeck(newGame.deck)
+    setDex(newGame.deck?.dex ?? [])
+    setEvent(newGame.event)
+    setGameTime(newGame.time ?? Date.now())
 }
-
-// export const deckState = selector({
-//     key: `game.deck`,
-//     get: ({get}) => {
-//         const game = get(gameState)
-//         return game?.deck
-//     },
-//     set: ({get, set}, val) => {
-//         const game = get(gameState)
-//         set(gameState, game && {
-//             ...game,
-//             deck: val
-//         })
-//     }
-// })
-
-// export const cardDexState = selector({
-//     key: `game.deck.dex`,
-//     get: ({get}) => {
-//         const game = get(gameState)
-//         return game?.deck?.dex
-//     }
-// })
-
-export const gamePlayerState = memoize((playerId) => selector({
-    key: `game.players.${playerId}`,
-    get: ({ get }) => {
-        const game = get(gameState)
-        return game.players.find(p => p.id === playerId)
-    },
-    set: ({ get, set }, val) => {
-        const game = get(gameState)
-        set(gameState, game && {
-            ...game,
-            players: game.players?.map(p => p.id === playerId ? val : p)
-        })
-    }
-}))
 
 export const setGamePlayer = (setGame) => (playerId, modifier) => {
     setGame(g => g && {
         ...g,
         players: g.players?.map(p => p.id === playerId ? modifier(p) : p)
-    })
-}
-
-export const setDeck = (setGame) => (updator) => {
-    setGame(g => g && {
-        ...g,
-        deck: _.isFunction(updator) ? updator(g.deck) : updator
     })
 }

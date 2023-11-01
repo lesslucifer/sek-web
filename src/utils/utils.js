@@ -76,9 +76,14 @@ export default class Utils {
                 const target = fTarget()
                 return target && Reflect.deleteProperty(target, ...args)
             },
-            getOwnPropertyDescriptor(_target, ...args) {
+            getOwnPropertyDescriptor(_target, key) {
                 const target = fTarget()
-                return target && Reflect.getOwnPropertyDescriptor(target, ...args)
+                let propDesc;
+                if (target) {
+                    propDesc = Reflect.getOwnPropertyDescriptor(target, key)
+                    propDesc && Reflect.defineProperty(_target, key, propDesc)
+                }
+                return propDesc
             },
             getPrototypeOf(_target, ...args) {
                 const target = fTarget()
@@ -94,6 +99,7 @@ export default class Utils {
             },
             ownKeys(_target, ...args) {
                 const target = fTarget()
+                console.log('Own keys called on', target, args)
                 return target && Reflect.ownKeys(target, ...args)
             },
             preventExtensions(_target, ...args) {

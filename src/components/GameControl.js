@@ -43,7 +43,7 @@ function GameControl(props) {
 
     const controlMode = () => {
         console.log(game, uid)
-        if (!game || !uid || game.status === 'CLOSED') return
+        if (!game.id || !uid || game.status === 'CLOSED') return
         
         if (game.players[uid]?.status === 'AWAY') return 'AWAY'
         if (game.hand?.status === 'SD' && player) return 'SHOW_DOWN'

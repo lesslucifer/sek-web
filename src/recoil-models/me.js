@@ -6,8 +6,13 @@ export const meState = atom({
     default: null
 })
 
-export const onMe = ({ game, room, setMe }) => (data) => {
-    const newMe = protob.GamePlayer.decode(new Uint8Array(data))
-    console.log('Set me', game, room)
+export const myCardsState = atom({
+    key: `me.cards`,
+    default: []
+})
+
+export const onMe = ({ game, room, setMe, setMyCards }) => (data) => {
+    const newMe = data instanceof ArrayBuffer ? protob.GamePlayer.decode(new Uint8Array(data)) : data
     setMe(newMe)
+    setMyCards(newMe.cards)
 }
